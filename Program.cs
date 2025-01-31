@@ -50,6 +50,22 @@ namespace AdventOfCode2024
 					}
 
 					Console.WriteLine("Distance: " + distance);
+
+					int similarityScore = 0;
+					for (int i = 0; i < leftPair.Count; i++)
+					{
+						int rightCounter = 0;
+						for (int j = 0; j < rightPair.Count; j++)
+						{
+							if (leftPair[i] == rightPair[j])
+							{
+								rightCounter++;
+							}
+						}
+						similarityScore = similarityScore + (leftPair[i] * rightCounter);
+					}
+
+					Console.WriteLine("Similarity Score: " + similarityScore);
 				}
 			}
 		}
