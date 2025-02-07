@@ -30,18 +30,18 @@
 			foreach(var report in reports)
 			{
 				//levels
-				int ascention = 0;
-				if (report.Levels[0].Value == 39 && report.Levels[1].Value == 40)
+				int prevDiff = 0;
+				int currentDiff = 0;
+
+				if (report.Levels[0].Value == 38 && report.Levels[1].Value == 41 && report.Levels[2].Value == 42)
 				{
 					var val = 0;
 				}
 				for (int i = 0; i < (report.Levels.Count - 1) && report.IsOneWay && report.IsSafe; i++)
 				{
-					var diff = report.Levels[i].Value - report.Levels[i + 1].Value;
-					var prevAscention = ascention;
-					/// if one way, ascention will go up all the time
-					ascention = diff + ascention;
-					if (Math.Abs(prevAscention) >= Math.Abs(ascention))
+					prevDiff = currentDiff;
+					currentDiff = report.Levels[i].Value - report.Levels[i + 1].Value;
+					if ((prevDiff < 0 && currentDiff > 0) || (prevDiff > 0 && currentDiff < 0) || (report.Levels[i].Value == report.Levels[i + 1].Value))
 					{
 						report.IsOneWay = false;
 					}
@@ -50,7 +50,7 @@
 						report.IsOneWay = true;
 					}
 
-					if (Math.Abs(diff) <= 3 && report.IsOneWay)
+					if (Math.Abs(currentDiff) <= 3 && report.IsOneWay)
 					{
 						report.IsSafe = true;
 					}
