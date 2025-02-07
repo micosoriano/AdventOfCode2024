@@ -27,11 +27,18 @@
 
 			foreach(var report in reports)
 			{
-				report.CheckIsSafe();
+				report.CheckIfSafe();
 
 				if (report.IsSafe && report.IsOneWay)
 				{
 					safeReports += 1;
+				}
+				else
+				{
+					if (ProblemDampener.DampenProblem(report))
+					{
+						safeReports += 1;
+					}
 				}
 			}
 
@@ -56,7 +63,7 @@
 			this.IsOneWay = true;
 		}
 
-		public void CheckIsSafe()
+		public void CheckIfSafe()
 		{
 			//levels
 			int prevDiff = 0;
@@ -66,13 +73,14 @@
 			{
 				var val = 0;
 			}
-			for (int i = 0; i < (this.Levels.Count - 1) && this.IsOneWay && this.IsSafe; i++)
+			for (int i = 0; i < (this.Levels.Count - 1); i++)
 			{
 				prevDiff = currentDiff;
 				currentDiff = this.Levels[i].Value - this.Levels[i + 1].Value;
 				if ((prevDiff < 0 && currentDiff > 0) || (prevDiff > 0 && currentDiff < 0) || (this.Levels[i].Value == this.Levels[i + 1].Value))
 				{
 					this.IsOneWay = false;
+					break;
 				}
 				else
 				{
@@ -86,6 +94,7 @@
 				else
 				{
 					this.IsSafe = false;
+					break;
 				}
 			}
 		}
@@ -97,6 +106,28 @@
 		public Level(int value)
 		{
 			this.Value = value;
+		}
+	}
+
+	static class ProblemDampener
+	{
+		public static bool DampenProblem(Report report)
+		{
+			bool isSafe = false;
+			for (int i = 0; i < report.Levels.Count; i++)
+			{
+				var level = report.Levels[i];
+				report.Levels.RemoveAt(i);
+				report.CheckIfSafe();
+
+				report.Levels.Insert(i, level);
+				if (report.IsSafe && report.IsOneWay)
+				{
+					isSafe =  true;
+				}
+
+			}
+			return isSafe;
 		}
 	}
 }
