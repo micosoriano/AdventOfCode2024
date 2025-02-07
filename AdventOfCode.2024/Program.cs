@@ -1,4 +1,4 @@
-﻿using System;
+﻿using AdventOfCode.Helpers;
 
 namespace AdventOfCode
 {
@@ -6,11 +6,10 @@ namespace AdventOfCode
 	{
 		static void Main(string[] args)
 		{
-			Console.WriteLine("Advent of Code 2024 Day 1");
+			var inputManager = new InputManager();
 
-			string filename = "..\\..\\..\\inputs\\day1.txt";
-			Day1 day1 = new Day1();
-			day1.Task1And2(filename);
+			Day1 day1 = new Day1(inputManager.Day1);
+			day1.Task1And2();
 		}
 	}
 }
