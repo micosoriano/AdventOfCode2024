@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AdventOfCode2024
+namespace AdventOfCode
 {
 	internal class Program
 	{
