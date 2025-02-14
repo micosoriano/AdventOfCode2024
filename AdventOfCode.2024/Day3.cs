@@ -14,11 +14,9 @@
 		{
 			int mulResult = 0;
 			List<MulOperation> mulOperations = new List<MulOperation>();
-			bool isDo = true;
 			while (!this.reader.EndOfStream)
 			{
-				List<DoOperation> doOperations = new List<DoOperation>();
-				List<DontOperation> dontOperations = new List<DontOperation>();
+				List<IOperation> operations = new List<IOperation>();
 				string pattern = @"mul\(\d+,\d+\)";
 				string doPattern = "do()";
 				string dontPattern = "don't()";
@@ -28,28 +26,46 @@
 				var dontMatches = Regex.Matches(line, dontPattern);
 				foreach (Match match in matches)
 				{
-					Console.WriteLine(match.Value);
 					var digits = Regex.Matches(match.Value, @"\d+");
-					mulOperations.Add(new MulOperation(int.Parse(digits[0].Value), int.Parse(digits[1].Value), match.Index, isDo));
+					operations.Add(new MulOperation(int.Parse(digits[0].Value), int.Parse(digits[1].Value), match.Index));
 				}
 
 				foreach (Match match in doMatches)
 				{
-					Console.WriteLine(match.Value);
-					Console.WriteLine(match.Index);
-					doOperations.Add(new DoOperation(match.Index));
+					operations.Add(new DoOperation(match.Index));
 				}
 
 				foreach (Match match in dontMatches)
 				{
-					Console.WriteLine(match.Value);
-					Console.WriteLine(match.Index);
-					dontOperations.Add(new DontOperation(match.Index));
+					operations.Add(new DontOperation(match.Index));
 				}
-				
-				// check what was the last one on the line. do or dont
-				isDo = doOperations.Last().Position > dontOperations.Last().Position;
+
+				operations.Sort((x, y) => x.Position.CompareTo(y.Position));
+
+				bool doOperation = true;
+				foreach (var operation in operations)
+				{ 
+					Console.WriteLine(operation.GetType().Name);
+					Console.WriteLine(operation.Position);
+
+					if (operation is DoOperation) doOperation = true;
+					else if (operation is DontOperation) doOperation = false;
+					
+					if (operation is MulOperation mulOperation)
+					{
+						operation.IsEnabled = doOperation;
+
+						if (operation.IsEnabled)
+						{
+							Console.WriteLine("LETS MULTIPLY!");
+							mulResult += mulOperation.Operand1 * mulOperation.Operand2;
+							Console.WriteLine($"mulResult: {mulResult}");
+						}
+					}
+				}
 			}
+			
+			Console.WriteLine($"Mul Result: {mulResult}");
 		}
 
 		public void Task2()
@@ -64,18 +80,19 @@
 			public int Position { get; set; }
 			public bool IsEnabled { get; set; }
 
-			public MulOperation(int operand1, int operand2, int position, bool isDo)
+			public MulOperation(int operand1, int operand2, int position)
 			{
 				Operand1 = operand1;
 				Operand2 = operand2;
 				Position = position;
-				IsEnabled = isDo;
+				IsEnabled = true;
 			}
 		}
 
 		class DoOperation : IOperation
 		{
 			public int Position { get; set; }
+			public bool IsEnabled { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
 			public DoOperation(int position)
 			{
@@ -86,6 +103,7 @@
 		class DontOperation : IOperation
 		{
 			public int Position { get; set; }
+			public bool IsEnabled { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
 			public DontOperation(int position)
 			{
@@ -96,5 +114,8 @@
 		interface IOperation
 		{
 			int Position { get; set; }
+
+			bool IsEnabled { get; set; }
 		}
+	}
 }
