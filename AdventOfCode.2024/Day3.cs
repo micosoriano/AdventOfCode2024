@@ -7,19 +7,20 @@
 	{
 		public Day3(string input) : base(input)
 		{
-			Console.WriteLine("Advent of Code Day 2");
+			Console.WriteLine("Advent of Code Day 3");
 		}
 
 		public void Task1()
 		{
 			int mulResult = 0;
 			List<MulOperation> mulOperations = new List<MulOperation>();
+			bool doOperation = true;
 			while (!this.reader.EndOfStream)
 			{
 				List<IOperation> operations = new List<IOperation>();
 				string pattern = @"mul\(\d+,\d+\)";
-				string doPattern = "do()";
-				string dontPattern = "don't()";
+				string doPattern = @"do\(\)";
+				string dontPattern = @"don't\(\)";
 				string line = reader.ReadLine()!;
 				var matches = Regex.Matches(line, pattern);
 				var doMatches = Regex.Matches(line, doPattern);
@@ -42,7 +43,6 @@
 
 				operations.Sort((x, y) => x.Position.CompareTo(y.Position));
 
-				bool doOperation = true;
 				foreach (var operation in operations)
 				{ 
 					Console.WriteLine(operation.GetType().Name);
@@ -58,7 +58,7 @@
 						if (operation.IsEnabled)
 						{
 							Console.WriteLine("LETS MULTIPLY!");
-							mulResult += mulOperation.Operand1 * mulOperation.Operand2;
+							mulResult = mulResult + ( mulOperation.Operand1 * mulOperation.Operand2);
 							Console.WriteLine($"mulResult: {mulResult}");
 						}
 					}
@@ -85,7 +85,6 @@
 				Operand1 = operand1;
 				Operand2 = operand2;
 				Position = position;
-				IsEnabled = true;
 			}
 		}
 
