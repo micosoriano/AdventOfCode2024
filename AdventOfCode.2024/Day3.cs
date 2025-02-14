@@ -14,6 +14,7 @@
 		{
 			int mulResult = 0;
 			List<MulOperation> mulOperations = new List<MulOperation>();
+			bool isDo = true;
 			while (!this.reader.EndOfStream)
 			{
 				List<DoOperation> doOperations = new List<DoOperation>();
@@ -29,7 +30,7 @@
 				{
 					Console.WriteLine(match.Value);
 					var digits = Regex.Matches(match.Value, @"\d+");
-					mulOperations.Add(new MulOperation(int.Parse(digits[0].Value), int.Parse(digits[1].Value), match.Index));
+					mulOperations.Add(new MulOperation(int.Parse(digits[0].Value), int.Parse(digits[1].Value), match.Index, isDo));
 				}
 
 				foreach (Match match in doMatches)
@@ -45,8 +46,9 @@
 					Console.WriteLine(match.Index);
 					dontOperations.Add(new DontOperation(match.Index));
 				}
-
-
+				
+				// check what was the last one on the line. do or dont
+				isDo = doOperations.Last().Position > dontOperations.Last().Position;
 			}
 		}
 
@@ -55,23 +57,23 @@
 
 		}
 
-		class MulOperation
+		class MulOperation : IOperation
 		{
 			public int Operand1 { get; set; }
 			public int Operand2 { get; set; }
 			public int Position { get; set; }
 			public bool IsEnabled { get; set; }
 
-			public MulOperation(int operand1, int operand2, int position)
+			public MulOperation(int operand1, int operand2, int position, bool isDo)
 			{
 				Operand1 = operand1;
 				Operand2 = operand2;
 				Position = position;
-				IsEnabled = true;
+				IsEnabled = isDo;
 			}
 		}
 
-		class DoOperation
+		class DoOperation : IOperation
 		{
 			public int Position { get; set; }
 
@@ -81,7 +83,7 @@
 			}
 		}
 
-		class DontOperation
+		class DontOperation : IOperation
 		{
 			public int Position { get; set; }
 
@@ -90,5 +92,9 @@
 				Position = position;
 			}
 		}
-	}
+
+		interface IOperation
+		{
+			int Position { get; set; }
+		}
 }
