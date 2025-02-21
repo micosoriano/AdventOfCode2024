@@ -2,6 +2,7 @@
 {
 	using System.Drawing;
 	using System.Text.RegularExpressions;
+	using System.Xml.Serialization;
 	using AdventOfCode.Helpers;
 
 	internal class Day4 : Day, IDay
@@ -92,7 +93,72 @@
 
 		public void Task2()
 		{
-			throw new NotImplementedException();
+			int xmasCount = 0;
+
+			foreach (var a in aList)
+			{
+				var xmas = 0;
+
+				// s on the north east
+				var NES = a.FindNext(sList.Cast<IXMAS>().ToList(), Direction.NE);
+				IXMAS SWM = null;
+
+				if (NES != null)
+				{
+					SWM = a.FindNext(mList.Cast<IXMAS>().ToList(), Direction.SW);
+				}
+
+				if (SWM != null)
+				{
+					xmas++;
+				}
+				
+				// m on the north east
+				var NEM = a.FindNext(mList.Cast<IXMAS>().ToList(), Direction.NE);
+				IXMAS SWS = null;
+
+				if (NEM != null)
+				{
+					SWS = a.FindNext(sList.Cast<IXMAS>().ToList(), Direction.SW);
+				}
+
+				if (SWS != null)
+				{
+					xmas++;
+				}
+
+				// s on the south east
+				var SES = a.FindNext(sList.Cast<IXMAS>().ToList(), Direction.SE);
+				IXMAS NWM = null;
+
+				if (SES != null)
+				{
+					NWM = a.FindNext(mList.Cast<IXMAS>().ToList(), Direction.NW);
+				}
+
+				if (NWM != null)
+				{
+					xmas++;
+				}
+
+				// m on the south east
+				var SEM = a.FindNext(mList.Cast<IXMAS>().ToList(), Direction.SE);
+				IXMAS NWS = null;
+
+				if (SEM != null)
+				{
+					NWS = a.FindNext(sList.Cast<IXMAS>().ToList(), Direction.NW);
+				}
+
+				if (NWS != null)
+				{
+					xmas++;
+				}
+
+				if (xmas == 2) xmasCount++;
+			}
+
+			Console.WriteLine("XMAS Count: " + xmasCount);
 		}
 
 		enum Direction
