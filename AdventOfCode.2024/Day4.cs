@@ -6,22 +6,18 @@
 
 	internal class Day4 : Day, IDay
 	{
+		string xPattern = @"X";
+		string mPattern = @"M";
+		string aPattern = @"A";
+		string sPattern = @"S";
+		List<X> xList = new List<X>();
+		List<M> mList = new List<M>();
+		List<A> aList = new List<A>();
+		List<S> sList = new List<S>();
+
 		public Day4(string input) : base(input)
 		{
 			Console.WriteLine("Advent of Code Day 4");
-		}
-
-		public void Task1()
-		{
-			string xPattern = @"X";
-			string mPattern = @"M";
-			string aPattern = @"A";
-			string sPattern = @"S";
-			List<X> xList = new List<X>();
-			List<M> mList = new List<M>();
-			List<A> aList = new List<A>();
-			List<S> sList = new List<S>();
-
 			int y = 0;
 			while (!this.reader.EndOfStream)
 			{
@@ -63,6 +59,10 @@
 			aList.OrderBy(x => x.YLoc).ThenBy(x => x.XLoc);
 			sList.OrderBy(x => x.YLoc).ThenBy(x => x.XLoc);
 
+		}
+
+		public void Task1()
+		{
 			int xmasCount = 0;
 			foreach (var x in xList)
 			{
