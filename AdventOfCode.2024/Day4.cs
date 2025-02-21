@@ -17,9 +17,9 @@
 		public Day4(string input) : base(input)
 		{
 			Console.WriteLine("Advent of Code Day 4");
+
 			int y = 0;
-			while (!this.reader.EndOfStream)
-			{
+			while (!this.reader.EndOfStream) {
 				string line = reader.ReadLine()!;
 
 				var xMatches = Regex.Matches(line, xPattern);
@@ -44,10 +44,8 @@
 		public void Task1()
 		{
 			int xmasCount = 0;
-			foreach (var x in xList)
-			{
-				for (int i = 0; i < 8; i++)
-				{
+			foreach (var x in xList) {
+				for (int i = 0; i < 8; i++) {
 					XMAS next = x.FindNext(mList, (Direction)i);
 					if (next != null) next = next.FindNext(aList, (Direction)i);
 					if (next != null) next = next.FindNext(sList, (Direction)i);
@@ -61,8 +59,7 @@
 		public void Task2()
 		{
 			int xmasCount = 0;
-			foreach (var a in aList)
-			{
+			foreach (var a in aList) {
 				var xmas = 0;
 
 				// s on the north east
@@ -121,8 +118,7 @@
 
 			public XMAS FindNext(List<XMAS> list, Direction dir)
 			{
-				switch (dir)
-				{
+				switch (dir) {
 					case Direction.N:
 						return FindNorth(list);
 					case Direction.S:
