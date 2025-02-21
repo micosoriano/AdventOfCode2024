@@ -1,8 +1,6 @@
 ﻿namespace AdventOfCode
 {
-	using System.Drawing;
 	using System.Text.RegularExpressions;
-	using System.Xml.Serialization;
 	using AdventOfCode.Helpers;
 
 	internal class Day4 : Day, IDay
@@ -11,10 +9,10 @@
 		string mPattern = @"M";
 		string aPattern = @"A";
 		string sPattern = @"S";
-		List<X> xList = new List<X>();
-		List<M> mList = new List<M>();
-		List<A> aList = new List<A>();
-		List<S> sList = new List<S>();
+		List<XMAS> xList = new List<XMAS>();
+		List<XMAS> mList = new List<XMAS>();
+		List<XMAS> aList = new List<XMAS>();
+		List<XMAS> sList = new List<XMAS>();
 
 		public Day4(string input) : base(input)
 		{
@@ -69,16 +67,16 @@
 			{
 				for (int i = 0; i < 8; i++)
 				{
-					IXMAS next = x.FindNext(mList.Cast<IXMAS>().ToList(), (Direction)i);
+					XMAS next = x.FindNext(mList, (Direction)i);
 
 					if (next != null)
 					{
-						next = next.FindNext(aList.Cast<IXMAS>().ToList(), (Direction)i);
+						next = next.FindNext(aList, (Direction)i);
 					}
 
 					if (next != null)
 					{
-						next = next.FindNext(sList.Cast<IXMAS>().ToList(), (Direction)i);
+						next = next.FindNext(sList, (Direction)i);
 					}
 
 					if (next != null)
@@ -100,12 +98,12 @@
 				var xmas = 0;
 
 				// s on the north east
-				var NES = a.FindNext(sList.Cast<IXMAS>().ToList(), Direction.NE);
-				IXMAS SWM = null;
+				var NES = a.FindNext(sList, Direction.NE);
+				XMAS SWM = null;
 
 				if (NES != null)
 				{
-					SWM = a.FindNext(mList.Cast<IXMAS>().ToList(), Direction.SW);
+					SWM = a.FindNext(mList, Direction.SW);
 				}
 
 				if (SWM != null)
@@ -114,12 +112,12 @@
 				}
 				
 				// m on the north east
-				var NEM = a.FindNext(mList.Cast<IXMAS>().ToList(), Direction.NE);
-				IXMAS SWS = null;
+				var NEM = a.FindNext(mList, Direction.NE);
+				XMAS SWS = null;
 
 				if (NEM != null)
 				{
-					SWS = a.FindNext(sList.Cast<IXMAS>().ToList(), Direction.SW);
+					SWS = a.FindNext(sList, Direction.SW);
 				}
 
 				if (SWS != null)
@@ -128,12 +126,12 @@
 				}
 
 				// s on the south east
-				var SES = a.FindNext(sList.Cast<IXMAS>().ToList(), Direction.SE);
-				IXMAS NWM = null;
+				var SES = a.FindNext(sList, Direction.SE);
+				XMAS NWM = null;
 
 				if (SES != null)
 				{
-					NWM = a.FindNext(mList.Cast<IXMAS>().ToList(), Direction.NW);
+					NWM = a.FindNext(mList, Direction.NW);
 				}
 
 				if (NWM != null)
@@ -142,12 +140,12 @@
 				}
 
 				// m on the south east
-				var SEM = a.FindNext(mList.Cast<IXMAS>().ToList(), Direction.SE);
-				IXMAS NWS = null;
+				var SEM = a.FindNext(mList, Direction.SE);
+				XMAS NWS = null;
 
 				if (SEM != null)
 				{
-					NWS = a.FindNext(sList.Cast<IXMAS>().ToList(), Direction.NW);
+					NWS = a.FindNext(sList, Direction.NW);
 				}
 
 				if (NWS != null)
@@ -173,14 +171,7 @@
 			SW
 		}
 
-		interface IXMAS
-		{
-			public int XLoc { get; set; }
-			public int YLoc { get; set; }
-			IXMAS FindNext(List<IXMAS> list, Direction dir);
-		}
-
-		class XMAS : IXMAS
+		class XMAS
 		{
 			public int XLoc { get; set; }
 			public int YLoc { get; set; }
@@ -192,67 +183,67 @@
 				this.YLoc = yLoc;
 			}
 
-			public IXMAS FindNext(List<IXMAS> list, Direction dir)
+			public XMAS FindNext(List<XMAS> list, Direction dir)
 			{
 				switch (dir)
 				{
 					case Direction.N:
-						return FindUp(list);
+						return FindNorth(list);
 					case Direction.S:
-						return FindDown(list);
+						return FindSouth(list);
 					case Direction.E:
-						return FindRight(list);
+						return FindEast(list);
 					case Direction.W:
-						return FindLeft(list);
+						return FindWest(list);
 					case Direction.NE:
-						return FindNE(list);
+						return FindNorthEast(list);
 					case Direction.NW:
-						return FindNW(list);
+						return FindNorthWest(list);
 					case Direction.SE:
-						return FindSE(list);
+						return FindSouthEast(list);
 					case Direction.SW:
-						return FindSW(list);
+						return FindSouthWest(list);
 				}
 
 				return null!;
 			}
 
-			public IXMAS FindUp(List<IXMAS> list)
+			public XMAS FindNorth(List<XMAS> list)
 			{
 				return list.Find(x => x.XLoc == this.XLoc && x.YLoc == this.YLoc - 1)!;
 			}
 
-			public IXMAS FindDown(List<IXMAS> list)
+			public XMAS FindSouth(List<XMAS> list)
 			{
 				return list.Find(x => x.XLoc == this.XLoc && x.YLoc == this.YLoc + 1)!;
 			}
 
-			public IXMAS FindLeft(List<IXMAS> list)
+			public XMAS FindWest(List<XMAS> list)
 			{
 				return list.Find(x => x.XLoc == this.XLoc - 1 && x.YLoc == this.YLoc)!;
 			}
 
-			public IXMAS FindRight(List<IXMAS> list)
+			public XMAS FindEast(List<XMAS> list)
 			{
 				return list.Find(x => x.XLoc == this.XLoc + 1 && x.YLoc == this.YLoc)!;
 			}
 
-			public IXMAS FindNE(List<IXMAS> list)
+			public XMAS FindNorthEast(List<XMAS> list)
 			{
 				return list.Find(x => x.XLoc == this.XLoc + 1 && x.YLoc == this.YLoc - 1)!;
 			}
 
-			public IXMAS FindNW(List<IXMAS> list)
+			public XMAS FindNorthWest(List<XMAS> list)
 			{
 				return list.Find(x => x.XLoc == this.XLoc - 1 && x.YLoc == this.YLoc - 1)!;
 			}
 
-			public IXMAS FindSE(List<IXMAS> list)
+			public XMAS FindSouthEast(List<XMAS> list)
 			{
 				return list.Find(x => x.XLoc == this.XLoc + 1 && x.YLoc == this.YLoc + 1)!;
 			}
 
-			public IXMAS FindSW(List<IXMAS> list)
+			public XMAS FindSouthWest(List<XMAS> list)
 			{
 				return list.Find(x => x.XLoc == this.XLoc - 1 && x.YLoc == this.YLoc + 1)!;
 			}
@@ -265,25 +256,16 @@
 
 		class M : XMAS
 		{
-			public M(int xLoc, int yLoc) : base(xLoc, yLoc)
-			{
-
-			}
+			public M(int xLoc, int yLoc) : base(xLoc, yLoc) { }
 		}
 
 		class A : XMAS
 		{
-			public A(int xLoc, int yLoc) : base(xLoc, yLoc)
-			{
-
-			}
+			public A(int xLoc, int yLoc) : base(xLoc, yLoc) { }
 		}
 		class S : XMAS
 		{
-			public S(int xLoc, int yLoc) : base(xLoc, yLoc)
-			{
-
-			}
+			public S(int xLoc, int yLoc) : base(xLoc, yLoc) { }
 		}
 	}
 }
