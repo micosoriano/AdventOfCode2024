@@ -25,7 +25,7 @@
 			int y = 0;
 			while (!this.reader.EndOfStream)
 			{
-				string line = reader.ReadLine();
+				string line = reader.ReadLine()!;
 				var xMatches = Regex.Matches(line, xPattern);
 				var mMatches = Regex.Matches(line, mPattern);
 				var aMatches = Regex.Matches(line, aPattern);
@@ -63,13 +63,31 @@
 			aList.OrderBy(x => x.YLoc).ThenBy(x => x.XLoc);
 			sList.OrderBy(x => x.YLoc).ThenBy(x => x.XLoc);
 
+			int xmasCount = 0;
 			foreach (var x in xList)
 			{
-				foreach (var direction in Enum.GetValues(typeof(Direction)))
+				for (int i = 0; i < 8; i++)
 				{
+					IXMAS next = x.FindNext(mList.Cast<IXMAS>().ToList(), (Direction)i);
 
+					if (next != null)
+					{
+						next = next.FindNext(aList.Cast<IXMAS>().ToList(), (Direction)i);
+					}
+
+					if (next != null)
+					{
+						next = next.FindNext(sList.Cast<IXMAS>().ToList(), (Direction)i);
+					}
+
+					if (next != null)
+					{
+						xmasCount++;
+					}
 				}
 			}
+
+			Console.WriteLine("XMAS Count: " + xmasCount);
 		}
 
 		public void Task2()
@@ -89,7 +107,14 @@
 			SW
 		}
 
-		class XMAS
+		interface IXMAS
+		{
+			public int XLoc { get; set; }
+			public int YLoc { get; set; }
+			IXMAS FindNext(List<IXMAS> list, Direction dir);
+		}
+
+		class XMAS : IXMAS
 		{
 			public int XLoc { get; set; }
 			public int YLoc { get; set; }
@@ -101,71 +126,75 @@
 				this.YLoc = yLoc;
 			}
 
-			public void FindNext(List<XMAS> list, Direction dir)
+			public IXMAS FindNext(List<IXMAS> list, Direction dir)
 			{
+				switch (dir)
+				{
+					case Direction.N:
+						return FindUp(list);
+					case Direction.S:
+						return FindDown(list);
+					case Direction.E:
+						return FindRight(list);
+					case Direction.W:
+						return FindLeft(list);
+					case Direction.NE:
+						return FindNE(list);
+					case Direction.NW:
+						return FindNW(list);
+					case Direction.SE:
+						return FindSE(list);
+					case Direction.SW:
+						return FindSW(list);
+				}
 
+				return null!;
 			}
 
-			public void Connect(List<XMAS> list, Direction direction)
+			public IXMAS FindUp(List<IXMAS> list)
 			{
-				list.Find(x => x.XLoc == this.XLoc && x.YLoc == this.YLoc - 1 && x.GetType() == typeof(M));
+				return list.Find(x => x.XLoc == this.XLoc && x.YLoc == this.YLoc - 1)!;
 			}
 
-			public void FindUp(List<XMAS> list)
+			public IXMAS FindDown(List<IXMAS> list)
 			{
-				list.Find(x => x.XLoc == this.XLoc && x.YLoc == this.YLoc - 1);
+				return list.Find(x => x.XLoc == this.XLoc && x.YLoc == this.YLoc + 1)!;
 			}
 
-			public void FindDown(List<XMAS> list)
+			public IXMAS FindLeft(List<IXMAS> list)
 			{
-				list.Find(x => x.XLoc == this.XLoc && x.YLoc == this.YLoc + 1);
+				return list.Find(x => x.XLoc == this.XLoc - 1 && x.YLoc == this.YLoc)!;
 			}
 
-			public void FindLeft(List<XMAS> list)
+			public IXMAS FindRight(List<IXMAS> list)
 			{
-				list.Find(x => x.XLoc == this.XLoc - 1 && x.YLoc == this.YLoc);
+				return list.Find(x => x.XLoc == this.XLoc + 1 && x.YLoc == this.YLoc)!;
 			}
 
-			public void FindRight(List<XMAS> list)
+			public IXMAS FindNE(List<IXMAS> list)
 			{
-				list.Find(x => x.XLoc == this.XLoc + 1 && x.YLoc == this.YLoc);
+				return list.Find(x => x.XLoc == this.XLoc + 1 && x.YLoc == this.YLoc - 1)!;
 			}
 
-			public void FindNE(List<XMAS> list)
+			public IXMAS FindNW(List<IXMAS> list)
 			{
-				list.Find(x => x.XLoc == this.XLoc + 1 && x.YLoc == this.YLoc - 1);
+				return list.Find(x => x.XLoc == this.XLoc - 1 && x.YLoc == this.YLoc - 1)!;
 			}
 
-			public void FindNW(List<XMAS> list)
+			public IXMAS FindSE(List<IXMAS> list)
 			{
-				list.Find(x => x.XLoc == this.XLoc - 1 && x.YLoc == this.YLoc - 1);
+				return list.Find(x => x.XLoc == this.XLoc + 1 && x.YLoc == this.YLoc + 1)!;
 			}
 
-			public void FindSE(List<XMAS> list)
+			public IXMAS FindSW(List<IXMAS> list)
 			{
-				list.Find(x => x.XLoc == this.XLoc + 1 && x.YLoc == this.YLoc + 1);
-			}
-
-			public void FindSW(List<XMAS> list)
-			{
-				list.Find(x => x.XLoc == this.XLoc - 1 && x.YLoc == this.YLoc + 1);
+				return list.Find(x => x.XLoc == this.XLoc - 1 && x.YLoc == this.YLoc + 1)!;
 			}
 		}
 
 		class X : XMAS
 		{
 			public X(int xLoc, int yLoc) : base(xLoc, yLoc) { }
-
-			public void FindM(List<XMAS> list)
-			{
-				var mList = list.FindAll(x => x.GetType() == typeof(M));
-
-				foreach (var m in mList)
-				{
-
-				}
-			}
-
 		}
 
 		class M : XMAS
