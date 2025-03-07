@@ -15,6 +15,7 @@
 
 			List<Page> pages = new List<Page>();
 			PageHandler pageHandler = new PageHandler();
+			int sum = 0;
 			do
 			{
 				var line = reader.ReadLine()!;
@@ -29,9 +30,14 @@
 			while (!this.reader.EndOfStream)
 			{
 				string line = reader.ReadLine()!;
-				var split = Array.ConvertAll(line.Split(","), int.Parse);
-
+				var split = Array.ConvertAll(line.Split(","), int.Parse).ToList();
+				if (pageHandler.IsInOrder(split))
+				{
+					sum += split[split.Count/2];
+				}
 			}
+
+			Console.WriteLine(sum);
 		}
 
 		public void Task1()
@@ -92,6 +98,25 @@
 				page.Rank -= 1;
 				pages.Add(page);
 			}
+		}
+
+		public bool IsInOrder(List<int> lstPage)
+		{
+			bool isInOrder = false;
+			for (int i = 0; i < (lstPage.Count - 1); i++)
+			{
+				var msb = pages.FirstOrDefault(p => p.Value == lstPage[i]);
+				var lsb = pages.FirstOrDefault(p => p.Value == lstPage[i + 1]);
+				if (msb?.Rank <= lsb?.Rank)
+				{
+					Console.WriteLine("Not in order");
+
+					isInOrder = false;
+					break;
+				}
+				else isInOrder = true;
+			}
+			return isInOrder;
 		}
 	}
 }
