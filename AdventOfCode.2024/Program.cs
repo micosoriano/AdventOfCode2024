@@ -7,8 +7,8 @@ namespace AdventOfCode
 		static void Main(string[] args)
 		{
 			var inputManager = new InputManager();
-			Day4 day4 = new Day4(inputManager.Day4);
-			day4.Task2();
+			Day5 day5 = new Day5(inputManager.Day5);
+			//day5.Task2();
 		}
 	}
 }
