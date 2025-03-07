@@ -48,20 +48,22 @@
 	class Page
 	{
 		public int Value { get; }
-		public int Rank { get; set; } = 0;
+		public int Rank { get; set; }
 		public Page(int val)
 		{
 			this.Value = val;
+			this.Rank = 100;
 		}
 	}
 
 	class PageHandler
 	{
-		List<Page> pages = new List<Page>();
+		List<Page> pages;
+		public List<Page> Pages { get => pages.OrderBy(p => p.Rank).ToList(); }
 
 		public PageHandler()
 		{
-			
+			pages = new List<Page>();
 		}
 
 		public void AddLeft(Page page)
@@ -81,7 +83,15 @@
 		public void AddRight(Page page)
 		{
 			var right = pages.FirstOrDefault(p => p.Value == page.Value);
-			if (right == null) pages.Add(page);
+			if (right != null)
+			{
+				right.Rank -= 1;
+			}
+			else
+			{
+				page.Rank -= 1;
+				pages.Add(page);
+			}
 		}
 	}
 }
