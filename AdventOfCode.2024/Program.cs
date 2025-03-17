@@ -8,7 +8,7 @@ namespace AdventOfCode
 		{
 			var inputManager = new InputManager();
 			Day6 day6 = new Day6(inputManager.Day6);
-			//day5.Task2();
+			day6.Task1();
 		}
 	}
 }

@@ -48,7 +48,19 @@
         }
         public void Task1()
         {
+            do
+            {
+                guard.Move();
 
+                if (obstructionList.Any(o => o.Position == guard.Position))
+                {
+                    Console.WriteLine("Obstruction found at position: " + guard.Position);
+                    guard.Rotate();
+                }
+            }
+            while (obstructionList.Any(o => o.Position == guard.Position) || pathList.Any(p => p.Position == guard.Position));
+
+            Console.WriteLine(guard.DistinctPositions.Count);
         }
 
         public void Task2()
@@ -108,6 +120,7 @@
 
             public void Rotate()
             {
+                Console.WriteLine("Guard current direction: " + direction);
                 switch (direction)
                 {
                     case Direction.North:
@@ -123,24 +136,34 @@
                         direction = Direction.North;
                         break;
                 }
+
+                Console.WriteLine("Guard rotated to direction: " + direction);
             }
 
             public void Move()
             {
+                Console.WriteLine("Guard current position: " + Position);
                 switch (direction)
                 {
                     case Direction.North:
-                        Position.Offset(0, -1);
+                        Position = new Point(Position.X, Position.Y - 1);
                         break;
                     case Direction.East:
-                        Position.Offset(1, 0);
+                        Position = new Point(Position.X + 1, Position.Y);
                         break;
                     case Direction.South:
-                        Position.Offset(0, 1);
+                        Position = new Point(Position.X, Position.Y + 1);
                         break;
                     case Direction.West:
-                        Position.Offset(-1, 0);
+                        Position = new Point(Position.X - 1, Position.Y);
                         break;
+                }
+
+                Console.WriteLine("Guard moved to position: " + Position);
+                if (!DistinctPositions.Contains(Position))
+                {
+                    Console.WriteLine("Adding position to distinct positions: " + Position);
+                    DistinctPositions.Add(Position);
                 }
             }
         }
