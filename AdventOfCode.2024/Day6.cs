@@ -9,11 +9,13 @@
     using System.Threading.Tasks;
     using AdventOfCode.Helpers;
 
-    internal class Day6 : Day, IDay
+    internal class Day6 : Day
     {
         readonly string pathPattern = @"\.";
         readonly string obstructionPattern = @"\#";
         readonly string guardPattern = @"\^";
+        readonly int yMapSize = 1;
+        readonly int xMapSize = 0;
         readonly List<Path> pathList = new List<Path>();
         readonly List<Obstruction> obstructionList = new List<Obstruction>();
         readonly Guard guard;
@@ -23,7 +25,6 @@
             Console.WriteLine("Advent of Code Day 5");
 
             guard = new Guard();
-            int y = 1;
 
             while (!this.reader.EndOfStream)
             {
@@ -33,23 +34,23 @@
                 var guardMatches = Regex.Matches(line, guardPattern);
                 foreach (Match match in pathMatches)
                 {
-                    pathList.Add(new Path(new Point(match.Index, y)));
+                    pathList.Add(new Path(new Point(match.Index + 1, yMapSize)));
                 }
                 foreach (Match match in obstructionMatches)
                 {
-                    obstructionList.Add(new Obstruction(new Point(match.Index, y)));
+                    obstructionList.Add(new Obstruction(new Point(match.Index + 1, yMapSize)));
                 }
                 foreach (Match match in guardMatches)
                 {
-                    guard.SpawnPoint = new Point(match.Index, y);
+                    guard.SpawnPoint = new Point(match.Index + 1, yMapSize);
                     guard.Position = guard.SpawnPoint;
                 }
-                y++;
+                yMapSize++;
+                xMapSize = line.Length;
             }
         }
-        public void Task1()
+        public bool Task1()
         {
-            guard.DistinctPositions.Add(guard.Position);
             do
             {
                 if (obstructionList.Any(o => o.Position == guard.NextStep()))
@@ -64,12 +65,50 @@
             }
             while (obstructionList.Any(o => o.Position == guard.Position) || pathList.Any(p => p.Position == guard.Position) || guard.Position == guard.SpawnPoint);
 
-            Console.WriteLine(guard.DistinctPositions.Count);
+            //Console.WriteLine(guard.DistinctPositions.Count);
+            return true;
         }
 
         public void Task2()
         {
-            throw new NotImplementedException();
+            WaitWatcher waitWatcher = new WaitWatcher();
+            int loops = 0;
+            int y = 1;
+            Obstruction newObstruction;
+            while (y < yMapSize)
+            {
+                int x = 0;
+                do
+                {
+                    newObstruction = new Obstruction(new Point(x, y));
+                    if (!obstructionList.Contains(newObstruction))
+                    {
+                        Console.WriteLine("===Adding obstruction at position: " + newObstruction.Position + "===");
+                        obstructionList.Add(newObstruction);
+                        waitWatcher.Start();
+                        while (!waitWatcher.WaitComplete)
+                        {
+                            guard.Position = guard.SpawnPoint;
+                            guard.Direction = Direction.North;
+                            if (Task1())
+                            {
+                                Console.WriteLine("Guard finished");
+                                break;
+                            }
+                        }
+                        waitWatcher.Stop();
+                        if (waitWatcher.WaitComplete) loops += 1;
+                        obstructionList.Remove(newObstruction);
+                    }
+
+                    x++;
+                }
+                while (x < xMapSize);
+                y++;
+            }
+
+            Console.WriteLine("Loops: " + loops);
+
         }
 
         interface ILabItem
@@ -114,6 +153,7 @@
             public Point SpawnPoint { get; set; }
             public Point Position { get; set; }
             public List<Point> DistinctPositions { get; set; }
+            public Direction Direction { get => direction; set => direction = value; }
 
             private Direction direction;
 
@@ -151,11 +191,6 @@
                 Position = NextStep();
 
                 Console.WriteLine("Guard moved to position: " + Position);
-                if (!DistinctPositions.Contains(Position))
-                {
-                    Console.WriteLine("Adding position to distinct positions: " + Position);
-                    DistinctPositions.Add(Position);
-                }
             }
 
             public Point NextStep()
