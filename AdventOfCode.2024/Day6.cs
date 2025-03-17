@@ -23,7 +23,7 @@
             Console.WriteLine("Advent of Code Day 5");
 
             guard = new Guard();
-            int y = 0;
+            int y = 1;
 
             while (!this.reader.EndOfStream)
             {
@@ -41,24 +41,28 @@
                 }
                 foreach (Match match in guardMatches)
                 {
-                    guard.Position = new Point(match.Index, y);
+                    guard.SpawnPoint = new Point(match.Index, y);
+                    guard.Position = guard.SpawnPoint;
                 }
                 y++;
             }
         }
         public void Task1()
         {
+            guard.DistinctPositions.Add(guard.Position);
             do
             {
-                guard.Move();
-
-                if (obstructionList.Any(o => o.Position == guard.Position))
+                if (obstructionList.Any(o => o.Position == guard.NextStep()))
                 {
-                    Console.WriteLine("Obstruction found at position: " + guard.Position);
+                    Console.WriteLine("Obstruction found at position: " + guard.NextStep());
                     guard.Rotate();
                 }
+                else
+                {
+                    guard.Move();
+                }
             }
-            while (obstructionList.Any(o => o.Position == guard.Position) || pathList.Any(p => p.Position == guard.Position));
+            while (obstructionList.Any(o => o.Position == guard.Position) || pathList.Any(p => p.Position == guard.Position) || guard.Position == guard.SpawnPoint);
 
             Console.WriteLine(guard.DistinctPositions.Count);
         }
@@ -107,6 +111,7 @@
 
         class Guard : ILabItem
         {
+            public Point SpawnPoint { get; set; }
             public Point Position { get; set; }
             public List<Point> DistinctPositions { get; set; }
 
@@ -143,21 +148,7 @@
             public void Move()
             {
                 Console.WriteLine("Guard current position: " + Position);
-                switch (direction)
-                {
-                    case Direction.North:
-                        Position = new Point(Position.X, Position.Y - 1);
-                        break;
-                    case Direction.East:
-                        Position = new Point(Position.X + 1, Position.Y);
-                        break;
-                    case Direction.South:
-                        Position = new Point(Position.X, Position.Y + 1);
-                        break;
-                    case Direction.West:
-                        Position = new Point(Position.X - 1, Position.Y);
-                        break;
-                }
+                Position = NextStep();
 
                 Console.WriteLine("Guard moved to position: " + Position);
                 if (!DistinctPositions.Contains(Position))
@@ -165,6 +156,28 @@
                     Console.WriteLine("Adding position to distinct positions: " + Position);
                     DistinctPositions.Add(Position);
                 }
+            }
+
+            public Point NextStep()
+            {
+                Point nextStep = new Point();
+                switch (direction)
+                {
+                    case Direction.North:
+                        nextStep = new Point(Position.X, Position.Y - 1);
+                        break;
+                    case Direction.East:
+                        nextStep = new Point(Position.X + 1, Position.Y);
+                        break;
+                    case Direction.South:
+                        nextStep = new Point(Position.X, Position.Y + 1);
+                        break;
+                    case Direction.West:
+                        nextStep = new Point(Position.X - 1, Position.Y);
+                        break;
+                }
+
+                return nextStep;
             }
         }
     }
