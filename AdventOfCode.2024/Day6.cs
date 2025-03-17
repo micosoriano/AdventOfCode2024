@@ -33,23 +33,22 @@
                 var guardMatches = Regex.Matches(line, guardPattern);
                 foreach (Match match in pathMatches)
                 {
-                    pathList.Add(new Path(match.Index, y));
+                    pathList.Add(new Path(new Point(match.Index, y)));
                 }
                 foreach (Match match in obstructionMatches)
                 {
-                    obstructionList.Add(new Obstruction(match.Index, y));
+                    obstructionList.Add(new Obstruction(new Point(match.Index, y)));
                 }
                 foreach (Match match in guardMatches)
                 {
-                    guard.XLoc = match.Index;
-                    guard.YLoc = y;
+                    guard.Position = new Point(match.Index, y);
                 }
                 y++;
             }
         }
         public void Task1()
         {
-            throw new NotImplementedException();
+
         }
 
         public void Task2()
@@ -59,32 +58,29 @@
 
         interface ILabItem
         {
-            int XLoc { get; set; }
-            int YLoc { get; set; }
+            Point Position { get; set; }
         }
 
         class LabItem : ILabItem
         {
-            public int XLoc { get; set; }
-            public int YLoc { get; set; }
+            public Point Position { get; set; }
 
-            public LabItem(int x, int y)
+            public LabItem(Point position)
             {
-                XLoc = x;
-                YLoc = y;
+                Position = position;
             }
         }
 
         class Path : LabItem
         {
-            public Path(int x, int y) : base(x, y)
+            public Path(Point position) : base(position)
             {
             }
         }
 
         class Obstruction : LabItem
         {
-            public Obstruction(int x, int y) : base(x, y)
+            public Obstruction(Point position) : base(position)
             {
             }
         }
@@ -99,8 +95,7 @@
 
         class Guard : ILabItem
         {
-            public int XLoc { get; set; }
-            public int YLoc { get; set; }
+            public Point Position { get; set; }
             public List<Point> DistinctPositions { get; set; }
 
             private Direction direction;
@@ -135,16 +130,16 @@
                 switch (direction)
                 {
                     case Direction.North:
-                        YLoc--;
+                        Position.Offset(0, -1);
                         break;
                     case Direction.East:
-                        XLoc++;
+                        Position.Offset(1, 0);
                         break;
                     case Direction.South:
-                        YLoc++;
+                        Position.Offset(0, 1);
                         break;
                     case Direction.West:
-                        XLoc--;
+                        Position.Offset(-1, 0);
                         break;
                 }
             }
