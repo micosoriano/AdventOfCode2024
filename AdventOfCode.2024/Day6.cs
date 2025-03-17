@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Drawing;
     using System.Linq;
     using System.Text;
@@ -51,27 +52,33 @@
         }
         public bool Task1()
         {
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
             do
             {
                 if (obstructionList.Any(o => o.Position == guard.NextStep()))
                 {
-                    Console.WriteLine("Obstruction found at position: " + guard.NextStep());
                     guard.Rotate();
                 }
                 else
                 {
                     guard.Move();
                 }
+
+                if (stopWatch.ElapsedMilliseconds >= 3000)
+                {
+                    Console.WriteLine("Guard stuck");
+                    return false;
+                }
             }
             while (obstructionList.Any(o => o.Position == guard.Position) || pathList.Any(p => p.Position == guard.Position) || guard.Position == guard.SpawnPoint);
-
+            stopWatch.Stop();
             //Console.WriteLine(guard.DistinctPositions.Count);
             return true;
         }
 
         public void Task2()
         {
-            WaitWatcher waitWatcher = new WaitWatcher();
             int loops = 0;
             int y = 1;
             Obstruction newObstruction;
@@ -81,23 +88,17 @@
                 do
                 {
                     newObstruction = new Obstruction(new Point(x, y));
-                    if (!obstructionList.Contains(newObstruction))
+                    if (!obstructionList.Contains(newObstruction) || !(newObstruction.Position == guard.SpawnPoint))
                     {
                         Console.WriteLine("===Adding obstruction at position: " + newObstruction.Position + "===");
                         obstructionList.Add(newObstruction);
-                        waitWatcher.Start();
-                        while (!waitWatcher.WaitComplete)
+                        guard.Position = guard.SpawnPoint;
+                        guard.Direction = Direction.North;
+                        if (Task1())
                         {
-                            guard.Position = guard.SpawnPoint;
-                            guard.Direction = Direction.North;
-                            if (Task1())
-                            {
-                                Console.WriteLine("Guard finished");
-                                break;
-                            }
+                            Console.WriteLine("Guard finished");
                         }
-                        waitWatcher.Stop();
-                        if (waitWatcher.WaitComplete) loops += 1;
+                        else loops++;
                         obstructionList.Remove(newObstruction);
                     }
 
@@ -165,7 +166,6 @@
 
             public void Rotate()
             {
-                Console.WriteLine("Guard current direction: " + direction);
                 switch (direction)
                 {
                     case Direction.North:
@@ -181,16 +181,11 @@
                         direction = Direction.North;
                         break;
                 }
-
-                Console.WriteLine("Guard rotated to direction: " + direction);
             }
 
             public void Move()
             {
-                Console.WriteLine("Guard current position: " + Position);
                 Position = NextStep();
-
-                Console.WriteLine("Guard moved to position: " + Position);
             }
 
             public Point NextStep()
