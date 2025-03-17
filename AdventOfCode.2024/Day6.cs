@@ -5,9 +5,7 @@
     using System.Diagnostics;
     using System.Drawing;
     using System.Linq;
-    using System.Text;
     using System.Text.RegularExpressions;
-    using System.Threading.Tasks;
     using AdventOfCode.Helpers;
 
     internal class Day6 : Day
@@ -16,96 +14,60 @@
         readonly string obstructionPattern = @"\#";
         readonly string guardPattern = @"\^";
         readonly int yMapSize = 1;
-        readonly int xMapSize = 0;
-        readonly List<Path> pathList = new List<Path>();
-        readonly List<Obstruction> obstructionList = new List<Obstruction>();
         readonly Guard guard;
 
         public Day6(string input) : base(input)
         {
             Console.WriteLine("Advent of Code Day 5");
-
             guard = new Guard();
+            List<Path> pathList = new List<Path>();
+            List<Obstruction> obstructionList = new List<Obstruction>();
 
-            while (!this.reader.EndOfStream)
-            {
+            while (!this.reader.EndOfStream) {
                 string line = reader.ReadLine()!;
                 var pathMatches = Regex.Matches(line, pathPattern);
                 var obstructionMatches = Regex.Matches(line, obstructionPattern);
                 var guardMatches = Regex.Matches(line, guardPattern);
-                foreach (Match match in pathMatches)
-                {
-                    pathList.Add(new Path(new Point(match.Index + 1, yMapSize)));
-                }
-                foreach (Match match in obstructionMatches)
-                {
-                    obstructionList.Add(new Obstruction(new Point(match.Index + 1, yMapSize)));
-                }
-                foreach (Match match in guardMatches)
-                {
+                foreach (Match match in pathMatches) pathList.Add(new Path(new Point(match.Index + 1, yMapSize)));
+                foreach (Match match in obstructionMatches) obstructionList.Add(new Obstruction(new Point(match.Index + 1, yMapSize)));
+                foreach (Match match in guardMatches) {
                     guard.SpawnPoint = new Point(match.Index + 1, yMapSize);
                     guard.Position = guard.SpawnPoint;
+                    //guard.DistinctPositions.Add(guard.SpawnPoint);
                 }
                 yMapSize++;
-                xMapSize = line.Length;
             }
-        }
-        public bool Task1()
-        {
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-            do
-            {
-                if (obstructionList.Any(o => o.Position == guard.NextStep()))
-                {
-                    guard.Rotate();
-                }
-                else
-                {
-                    guard.Move();
-                }
 
-                if (stopWatch.ElapsedMilliseconds >= 3000)
-                {
-                    Console.WriteLine("Guard stuck");
-                    return false;
-                }
-            }
-            while (obstructionList.Any(o => o.Position == guard.Position) || pathList.Any(p => p.Position == guard.Position) || guard.Position == guard.SpawnPoint);
-            stopWatch.Stop();
-            //Console.WriteLine(guard.DistinctPositions.Count);
-            return true;
+            guard.Paths = pathList;
+            guard.Obstructions = obstructionList;
+        }
+
+
+        public void Task1()
+        {
+            guard.DoPatrol();
+            Console.WriteLine("Distinct positions: " + guard.DistinctPositions.Count);
         }
 
         public void Task2()
         {
-            int loops = 0;
-            int y = 1;
-            Obstruction newObstruction;
-            while (y < yMapSize)
-            {
-                int x = 1;
-                do
-                {
-                    newObstruction = new Obstruction(new Point(x, y));
-                    if (!obstructionList.Any(o => o.Position == newObstruction.Position) && newObstruction.Position != guard.SpawnPoint)
-                    {
-                        Console.WriteLine("===Adding obstruction at position: " + newObstruction.Position + "===");
-                        obstructionList.Add(newObstruction);
-                        guard.Position = guard.SpawnPoint;
-                        guard.Direction = Direction.North;
-                        if (Task1())
-                        {
-                            Console.WriteLine("Guard finished");
-                        }
-                        else loops++;
-                        obstructionList.Remove(newObstruction);
-                    }
+            guard.DoPatrol();
 
-                    x++;
+            int loops = 0;
+            for (int i = 0; i < guard.DistinctPositions.Count; i++) {
+                var newObstruction = new Obstruction(guard.DistinctPositions[i]);
+                if (!guard.Obstructions.Any(o => o.Position == newObstruction.Position) && newObstruction.Position != guard.SpawnPoint) {
+                    Console.WriteLine("===Adding obstruction at position: " + newObstruction.Position + "===");
+                    guard.Obstructions.Add(newObstruction);
+                    guard.Position = guard.SpawnPoint;
+                    guard.Direction = Direction.North;
+                    if (guard.DoPatrol(true))
+                    {
+                        Console.WriteLine("Guard finished");
+                    }
+                    else loops++;
+                    guard.Obstructions.Remove(newObstruction);
                 }
-                while (x <= xMapSize);
-                y++;
             }
 
             Console.WriteLine("Loops: " + loops);
@@ -155,6 +117,8 @@
             public Point Position { get; set; }
             public List<Point> DistinctPositions { get; set; }
             public Direction Direction { get => direction; set => direction = value; }
+            public List<Obstruction> Obstructions { get; set; }
+            public List<Path> Paths { get; set; }
 
             private Direction direction;
 
@@ -162,12 +126,13 @@
             {
                 direction = Direction.North;
                 DistinctPositions = new List<Point>();
+                Obstructions = new List<Obstruction>();
+                Paths = new List<Path>();
             }
 
             public void Rotate()
             {
-                switch (direction)
-                {
+                switch (direction) {
                     case Direction.North:
                         direction = Direction.East;
                         break;
@@ -191,8 +156,7 @@
             public Point NextStep()
             {
                 Point nextStep = new Point();
-                switch (direction)
-                {
+                switch (direction) {
                     case Direction.North:
                         nextStep = new Point(Position.X, Position.Y - 1);
                         break;
@@ -208,6 +172,26 @@
                 }
 
                 return nextStep;
+            }
+
+            public bool DoPatrol(bool forTask2 = false)
+            {
+                var stopWatch = new Stopwatch();
+                stopWatch.Start();
+                while (Obstructions.Any(o => o.Position == Position) || Paths.Any(p => p.Position == Position) || Position == SpawnPoint) {
+                    if (Obstructions.Any(o => o.Position == NextStep())) Rotate();
+                    else {
+                        Move();
+                        if (!DistinctPositions.Contains(Position) && !forTask2) DistinctPositions.Add(Position);
+                    }
+
+                    if (stopWatch.ElapsedMilliseconds >= 3000) {
+                        Console.WriteLine("OH NOOOOOOO!!! IM STUUUCCCKKK HELP STEPBRO!!!");
+                        return false;
+                    }
+                }
+                stopWatch.Stop();
+                return true;
             }
         }
     }
