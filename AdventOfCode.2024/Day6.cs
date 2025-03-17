@@ -84,11 +84,11 @@
             Obstruction newObstruction;
             while (y < yMapSize)
             {
-                int x = 0;
+                int x = 1;
                 do
                 {
                     newObstruction = new Obstruction(new Point(x, y));
-                    if (!obstructionList.Contains(newObstruction) || !(newObstruction.Position == guard.SpawnPoint))
+                    if (!obstructionList.Any(o => o.Position == newObstruction.Position) && newObstruction.Position != guard.SpawnPoint)
                     {
                         Console.WriteLine("===Adding obstruction at position: " + newObstruction.Position + "===");
                         obstructionList.Add(newObstruction);
@@ -104,7 +104,7 @@
 
                     x++;
                 }
-                while (x < xMapSize);
+                while (x <= xMapSize);
                 y++;
             }
 
