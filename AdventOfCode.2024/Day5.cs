@@ -30,10 +30,12 @@
 				string line = reader.ReadLine()!;
 				var split = Array.ConvertAll(line.Split(","), int.Parse).ToList();
 				if (pageHandler.IsInOrder(split)) sum += split[split.Count / 2];
-				else
-				{
+				else {
 					split = pageHandler.ArrangePages(split);
-					sum2 += split[split.Count / 2];
+					var middle = split[split.Count / 2];
+					Console.WriteLine("middle: " + middle);
+					sum2 += middle;
+					Console.WriteLine("sum2: " + sum2);
 				}
 			}
 
@@ -121,18 +123,18 @@
 			List<int> arranged = lstPage;
 			for (int i = 0; i < lstPage.Count; i++)
 			{
-				var onLeft = pages.FirstOrDefault(p => p.Value == lstPage[i]);
+				var onLeft = pages.FirstOrDefault(p => p.Value == arranged[i]);
 
 				for (int j = i + 1; j < lstPage.Count; j++)
 				{
-					var onRight = pages.FirstOrDefault(p => p.Value == lstPage[j]);
+					var onRight = pages.FirstOrDefault(p => p.Value == arranged[j]);
 
 					if (!onLeft!.OnLeftOf.Contains(onRight!.Value))
 					{
-						arranged[j - 1] = onRight.Value;
+						var ind = arranged.IndexOf(onLeft.Value);
+						arranged[ind] = onRight.Value;
 						arranged[j] = onLeft.Value;
 					}
-					else break;
 				}
 			}
 
