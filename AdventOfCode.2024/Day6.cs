@@ -65,8 +65,7 @@
                     guard.Direction = Direction.North;
                     guard.Obstructions.Add(newObstruction);
 
-                    if (guard.DoPatrol(true)) Console.WriteLine("Guard finished " + i);
-                    else {
+                    if (!guard.DoPatrol(true)) {
                         Console.WriteLine("Guard stuck" + i);
                         loops++;
                     }
@@ -126,12 +125,14 @@
             private Direction direction;
             int yMapSize;
             int xMapSize;
+            private List<Point> path;
 
             public Guard()
             {
                 direction = Direction.North;
                 DistinctPositions = new List<Point>();
                 Obstructions = new List<Obstruction>();
+                path = new List<Point>();
             }
 
             private void SetMapSize()
@@ -161,6 +162,7 @@
             public void Move()
             {
                 Position = NextStep();
+                path.Add(Position);
             }
 
             public Point NextStep()
@@ -187,21 +189,16 @@
             public bool DoPatrol(bool forTask2 = false)
             {
                 SetMapSize();
-                var stopWatch = new Stopwatch();
-                stopWatch.Start();
                 while ((Position.X < xMapSize && Position.Y < yMapSize)
-                    && (Position.X > 0 && Position.Y > 0)) {
+                                    && (Position.X > 0 && Position.Y > 0)) {
                     if (Obstructions.Any(o => o.Position == NextStep())) Rotate();
                     else {
                         Move();
                         if (!forTask2) if (!DistinctPositions.Contains(Position)) DistinctPositions.Add(Position);
                     }
 
-                    if (stopWatch.ElapsedMilliseconds >= 5000) {
-                        return false;
-                    }
+                    if (path.Where(o => o == Position).Count() > 10) return false;
                 }
-                stopWatch.Stop();
                 return true;
             }
         }
