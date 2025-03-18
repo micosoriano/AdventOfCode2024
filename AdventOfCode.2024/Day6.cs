@@ -14,12 +14,12 @@
         readonly string obstructionPattern = @"\#";
         readonly string guardPattern = @"\^";
         readonly int yMapSize = 1;
-        readonly Guard guard;
+        readonly Guard mainGuard;
 
         public Day6(string input) : base(input)
         {
             Console.WriteLine("Advent of Code Day 5");
-            guard = new Guard();
+            mainGuard = new Guard();
             List<Path> pathList = new List<Path>();
             List<Obstruction> obstructionList = new List<Obstruction>();
 
@@ -31,44 +31,47 @@
                 foreach (Match match in pathMatches) pathList.Add(new Path(new Point(match.Index + 1, yMapSize)));
                 foreach (Match match in obstructionMatches) obstructionList.Add(new Obstruction(new Point(match.Index + 1, yMapSize)));
                 foreach (Match match in guardMatches) {
-                    guard.SpawnPoint = new Point(match.Index + 1, yMapSize);
-                    guard.Position = guard.SpawnPoint;
+                    mainGuard.SpawnPoint = new Point(match.Index + 1, yMapSize);
+                    mainGuard.Position = mainGuard.SpawnPoint;
                     //guard.DistinctPositions.Add(guard.SpawnPoint);
                 }
                 yMapSize++;
             }
 
-            guard.Paths = pathList;
-            guard.Obstructions = obstructionList;
+            mainGuard.Paths = pathList;
+            mainGuard.Obstructions = obstructionList;
         }
 
 
         public void Task1()
         {
-            guard.DoPatrol();
-            Console.WriteLine("Distinct positions: " + guard.DistinctPositions.Count);
+            mainGuard.DoPatrol();
+            Console.WriteLine("Distinct positions: " + mainGuard.DistinctPositions.Count);
         }
 
         public void Task2()
         {
-            guard.DoPatrol();
-
+            mainGuard.DoPatrol();
             int loops = 0;
-            for (int i = 0; i < guard.DistinctPositions.Count; i++) {
-                var newObstruction = new Obstruction(guard.DistinctPositions[i]);
-                if (!guard.Obstructions.Any(o => o.Position == newObstruction.Position) && newObstruction.Position != guard.SpawnPoint) {
+            Parallel.ForEach(mainGuard.DistinctPositions, i =>
+            {
+                var newObstruction = new Obstruction(i);
+                if (!mainGuard.Obstructions.Any(o => o.Position == newObstruction.Position) && newObstruction.Position != mainGuard.SpawnPoint)
+                {
+                    var guard = new Guard();
+                    guard.Paths = new List<Path>(mainGuard.Paths);
+                    guard.Obstructions = new List<Obstruction>(mainGuard.Obstructions);
+                    guard.DistinctPositions = new List<Point>(mainGuard.DistinctPositions);
+                    guard.SpawnPoint = mainGuard.SpawnPoint;
+                    guard.Position = mainGuard.SpawnPoint;
+                    guard.Direction = Direction.North;
                     Console.WriteLine("===Adding obstruction at position: " + newObstruction.Position + "===");
                     guard.Obstructions.Add(newObstruction);
-                    guard.Position = guard.SpawnPoint;
-                    guard.Direction = Direction.North;
-                    if (guard.DoPatrol(true))
-                    {
-                        Console.WriteLine("Guard finished");
-                    }
+                    if (guard.DoPatrol(true)) Console.WriteLine("Guard finished " + i);
                     else loops++;
                     guard.Obstructions.Remove(newObstruction);
                 }
-            }
+            });
 
             Console.WriteLine("Loops: " + loops);
 
@@ -185,12 +188,13 @@
                         if (!DistinctPositions.Contains(Position) && !forTask2) DistinctPositions.Add(Position);
                     }
 
-                    if (stopWatch.ElapsedMilliseconds >= 3000) {
+                    if (stopWatch.ElapsedMilliseconds >= 10000) {
                         Console.WriteLine("OH NOOOOOOO!!! IM STUUUCCCKKK HELP STEPBRO!!!");
                         return false;
                     }
                 }
                 stopWatch.Stop();
+                Console.WriteLine("Guard finished in " + stopWatch.ElapsedMilliseconds + "ms");
                 return true;
             }
         }
