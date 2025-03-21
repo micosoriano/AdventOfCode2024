@@ -7,6 +7,7 @@
     using System.Numerics;
     using System.Text;
     using System.Threading.Tasks;
+    using System.Transactions;
     using AdventOfCode.Helpers;
 
     internal class Day7 : Day
@@ -23,7 +24,6 @@
                 string line = reader.ReadLine()!;
                 var op = new List<string>();
 
-                Console.WriteLine(line);
                 var split = line.Split(":");
                 op.Add(split[0]);
                 var inputs = split[1].Trim().Split(" ");
@@ -34,19 +34,37 @@
 
         public void Task1()
         {
+            BigInteger sum = 0;
             foreach (var op in this.operations)
             {
                 var operandSize = op.Count - 2;
                 var fullOp = new byte[operandSize];
+                Console.WriteLine("expected output: " + op[0]);
                 for (int i = 0; i < operandSize; i++)
                 {
                     if (op[0] != DoOperation(op.GetRange(1, op.Count - 1), ConvertByteToOperation(fullOp)))
                     {
-                        fullOp[i] = ~fullOp[i];
+                        if (fullOp[i] == 0)
+                        {
+                            fullOp[i] = 1;
+                            if (op[0] == DoOperation(op.GetRange(1, op.Count - 1), ConvertByteToOperation(fullOp)))
+                            {
+                                sum += BigInteger.Parse(op[0]);
+                                Console.WriteLine(sum);
+                                break;
+                            }
+                        }
                     }
-                    else break;
+                    else
+                    {
+                        sum += BigInteger.Parse(op[0]);
+                        Console.WriteLine(sum);
+                        break;
+                    }
                 }
             }
+
+            Console.WriteLine("Sum: " + sum);
         }
 
         public void Task2()
@@ -67,8 +85,10 @@
             }
 
             var fullOP = string.Join("", values);
-            
+            Console.WriteLine("Full operation: " + fullOP);
             var table = new DataTable();
+            var output = table.Compute(fullOP, "").ToString();
+            Console.WriteLine("Current output: "  +output);
 
             return Convert.ToUInt64(table.Compute(fullOP, "")).ToString();
         }
