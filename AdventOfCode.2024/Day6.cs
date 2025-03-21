@@ -18,7 +18,7 @@
 
         public Day6(string input) : base(input)
         {
-            Console.WriteLine("Advent of Code Day 5");
+            Console.WriteLine("Advent of Code Day 6");
             mainGuard = new Guard();
             List<Path> pathList = new List<Path>();
             List<Obstruction> obstructionList = new List<Obstruction>();
