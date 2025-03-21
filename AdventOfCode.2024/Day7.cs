@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Drawing;
     using System.Linq;
     using System.Numerics;
     using System.Text;
@@ -12,38 +13,38 @@
 
     internal class Day7 : Day
     {
-        List<List<string>> operations;
+        List<List<double>> operations;
 
         public Day7(string input) : base(input)
         {
             Console.WriteLine("Advent of Code Day 7");
-            this.operations = new List<List<string>>();
+            this.operations = new List<List<double>>();
 
             while (!this.reader.EndOfStream)
             {
                 string line = reader.ReadLine()!;
-                var op = new List<string>();
+                var op = new List<double>();
 
                 var split = line.Split(":");
-                op.Add(split[0]);
+                op.Add(double.Parse(split[0]));
                 var inputs = split[1].Trim().Split(" ");
-                op.AddRange(inputs);
+                op.AddRange(Array.ConvertAll(inputs, double.Parse));
                 this.operations.Add(op);
             }
         }
 
         public void Task1()
         {
-            BigInteger sum = 0;
+            double sum = 0;
             foreach (var op in this.operations)
             {
                 var bruteForceTries = Math.Pow(2, op.Count - 2);
                 Console.WriteLine("expected output: " + op[0]);
-                for (var fullOp = new BigInteger(); (double)fullOp <= bruteForceTries; fullOp++)
+                for (int i = 0; i <= bruteForceTries; i++)
                 {
-                    if (op[0] == DoOperation(op.GetRange(1, op.Count - 1), ConvertByteToOperation(fullOp, bruteForceTries)))
+                    if (op[0] == DoOperation(op.GetRange(1, op.Count - 1), i, bruteForceTries))
                     {
-                        sum += BigInteger.Parse(op[0]);
+                        sum += op[0];
                         Console.WriteLine(sum);
                         break;
                     }
@@ -58,44 +59,25 @@
             throw new NotImplementedException();
         }
 
-        private string DoOperation(List<string> values, List<string> operation)
+        private double DoOperation(List<double> values, int operation, double size)
         {
-            values = values.Select(x => x = x +".0").ToList();
-            int insertIdx = 1;
-            int valIdx = operation.Count - 1;
-
-            while (insertIdx < values.Count && valIdx < operation.Count)
-            {
-                values.Insert(insertIdx, operation[valIdx]);
-                insertIdx += 2;
-                valIdx--;
-            }
-
-            var fullOP = string.Join("", values);
-            Console.WriteLine("Full operation: " + fullOP);
-            var table = new DataTable();
-            var output = table.Compute(fullOP, "").ToString();
-            Console.WriteLine("Current output: "  +output);
-
-            return Convert.ToUInt64(table.Compute(fullOP, "")).ToString();
-        }
-
-        private List<string> ConvertByteToOperation(BigInteger operation, double size)
-        {
-            var op = new List<string>();
+            double total = values[0];
             var bitCount = Math.Log(size, 2);
-            for (int i = 0; i < bitCount; i++)
+            var val = 1;
+            for (int i = (int)bitCount; i > 0; i--)
             {
-                if ((operation & (1 << i)) != 0)
+                if ((operation & (1 << (i - 1))) != 0)
                 {
-                    op.Add("*");
+                    total = total * values[val];
                 }
                 else
                 {
-                    op.Add("+");
+                    total = total + values[val];
                 }
+                val++;
             }
-            return op.ToList();
+
+            return total;
         }
     }
 }
