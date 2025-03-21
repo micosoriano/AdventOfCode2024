@@ -38,7 +38,7 @@
             double sum = 0;
             foreach (var op in this.operations)
             {
-                var bruteForceTries = Math.Pow(2, op.Count - 2);
+                var bruteForceTries = Math.Pow(3, op.Count - 2);
                 Console.WriteLine("expected output: " + op[0]);
                 for (int i = 0; i <= bruteForceTries; i++)
                 {
@@ -62,17 +62,28 @@
         private double DoOperation(List<double> values, int operation, double size)
         {
             double total = values[0];
-            var bitCount = Math.Log(size, 2);
+            var bitCount = Math.Log(size, 3);
             var val = 1;
             for (int i = (int)bitCount; i > 0; i--)
             {
-                if ((operation & (1 << (i - 1))) != 0)
+                var tempOperation = operation;
+                var state = 0;
+                for (int j = 1; j < i; j++)
+                {
+                    tempOperation = tempOperation / 3;
+                }
+                state = tempOperation % 3;
+                if (state == 0)
                 {
                     total = total * values[val];
                 }
-                else
+                else if (state == 1)
                 {
                     total = total + values[val];
+                }
+                else
+                {
+                    total = double.Parse($"{total}{values[val]}");
                 }
                 val++;
             }
