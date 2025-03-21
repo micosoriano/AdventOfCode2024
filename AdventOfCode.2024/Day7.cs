@@ -37,25 +37,11 @@
             BigInteger sum = 0;
             foreach (var op in this.operations)
             {
-                var operandSize = op.Count - 2;
-                var fullOp = new byte[operandSize];
+                var bruteForceTries = Math.Pow(2, op.Count - 2);
                 Console.WriteLine("expected output: " + op[0]);
-                for (int i = 0; i < operandSize; i++)
+                for (var fullOp = new BigInteger(); (double)fullOp <= bruteForceTries; fullOp++)
                 {
-                    if (op[0] != DoOperation(op.GetRange(1, op.Count - 1), ConvertByteToOperation(fullOp)))
-                    {
-                        if (fullOp[i] == 0)
-                        {
-                            fullOp[i] = 1;
-                            if (op[0] == DoOperation(op.GetRange(1, op.Count - 1), ConvertByteToOperation(fullOp)))
-                            {
-                                sum += BigInteger.Parse(op[0]);
-                                Console.WriteLine(sum);
-                                break;
-                            }
-                        }
-                    }
-                    else
+                    if (op[0] == DoOperation(op.GetRange(1, op.Count - 1), ConvertByteToOperation(fullOp, bruteForceTries)))
                     {
                         sum += BigInteger.Parse(op[0]);
                         Console.WriteLine(sum);
@@ -74,14 +60,15 @@
 
         private string DoOperation(List<string> values, List<string> operation)
         {
+            values = values.Select(x => x = x +".0").ToList();
             int insertIdx = 1;
-            int valIdx = 0;
+            int valIdx = operation.Count - 1;
 
             while (insertIdx < values.Count && valIdx < operation.Count)
             {
                 values.Insert(insertIdx, operation[valIdx]);
                 insertIdx += 2;
-                valIdx++;
+                valIdx--;
             }
 
             var fullOP = string.Join("", values);
@@ -93,19 +80,19 @@
             return Convert.ToUInt64(table.Compute(fullOP, "")).ToString();
         }
 
-        private List<string> ConvertByteToOperation(byte[] operation)
+        private List<string> ConvertByteToOperation(BigInteger operation, double size)
         {
-            string[] op = new string[operation.Length];
-            for (int i = 0; i < operation.Length; i++)
+            var op = new List<string>();
+            var bitCount = Math.Log(size, 2);
+            for (int i = 0; i < bitCount; i++)
             {
-                switch (operation[i])
+                if ((operation & (1 << i)) != 0)
                 {
-                    case 0:
-                        op[i] = "+";
-                        break;
-                    case 1:
-                        op[i] = "*";
-                        break;
+                    op.Add("*");
+                }
+                else
+                {
+                    op.Add("+");
                 }
             }
             return op.ToList();
