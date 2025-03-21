@@ -11,7 +11,7 @@ namespace AdventOfCode
             stopwatch.Start();
             var inputManager = new InputManager();
 			Day7 day7 = new Day7(inputManager.Day7);
-			//day7.Task1();
+			day7.Task1();
 			stopwatch.Stop();
             Console.WriteLine("Time elapsed: {0}", stopwatch.Elapsed);
         }
