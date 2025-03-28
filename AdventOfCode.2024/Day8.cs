@@ -43,7 +43,16 @@
 
         public void Task1()
         {
+            List<AntiNode> totalNodes = new List<AntiNode>();
+            foreach (var pair in antennaPairs)
+            {
+                totalNodes.AddRange(pair.AntiNodePair.NodePair);
+            }
 
+            totalNodes = totalNodes.GroupBy(x => x.Position).Select(g => g.First()).ToList();
+
+            var validNodes = totalNodes.Where(x => x.Position.X < xMapSize && x.Position.Y < yMapSize && x.Position.X >= 0 && x.Position.Y >= 0);
+            Console.WriteLine("Valid Nodes: " + validNodes.Count());
         }
     }
 
@@ -82,7 +91,7 @@
 
     class AntiNodePair
     {
-        public (AntiNode, AntiNode) NodePair { get; }
+        public List<AntiNode> NodePair { get; }
         public AntiNodePair(Antenna pair1, Antenna pair2)
         {
             int xDiff = Math.Abs(pair1.Position.X - pair2.Position.X);
@@ -114,7 +123,9 @@
                 yNode2 = pair2.Position.Y - yDiff;
             }
 
-            NodePair = (new AntiNode(new Point(xNode1, yNode1)), new AntiNode(new Point(xNode2, yNode2)));
+            NodePair = new List<AntiNode>();
+            NodePair.Add(new AntiNode(new Point(xNode1, yNode1)));
+            NodePair.Add(new AntiNode(new Point(xNode2, yNode2)));
         }
     }
 }
