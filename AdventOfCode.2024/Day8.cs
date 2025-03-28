@@ -69,10 +69,12 @@
 
     class AntennaPair
     {
+        public (Antenna, Antenna) Pair { get; set; }
         public AntiNodePair AntiNodePair { get; }
 
         public AntennaPair(Antenna pair1, Antenna pair2)
         {
+            Pair = (pair1, pair2);
             AntiNodePair = new AntiNodePair(pair1, pair2);
         }
     }
@@ -85,8 +87,34 @@
         {
             int xDiff = Math.Abs(pair1.Position.X - pair2.Position.X);
             int yDiff = Math.Abs(pair1.Position.Y - pair2.Position.Y);
+            int xNode1;
+            int yNode1;
+            int xNode2;
+            int yNode2;
 
-            NodePair = (new AntiNode(new Point(pair1.Position.X + xDiff, pair1.Position.Y + yDiff)), new AntiNode(new Point(pair2.Position.X - xDiff, pair2.Position.Y - yDiff)));
+            if (pair1.Position.X < pair2.Position.X)
+            {
+                xNode1 = pair1.Position.X - xDiff;
+                xNode2 = pair2.Position.X + xDiff;
+            }
+            else
+            {
+                xNode1 = pair1.Position.X + xDiff;
+                xNode2 = pair2.Position.X - xDiff;
+            }
+
+            if (pair1.Position.Y < pair2.Position.Y)
+            {
+                yNode1 = pair1.Position.Y - yDiff;
+                yNode2 = pair2.Position.Y + yDiff;
+            }
+            else
+            {
+                yNode1 = pair1.Position.Y + yDiff;
+                yNode2 = pair2.Position.Y - yDiff;
+            }
+
+            NodePair = (new AntiNode(new Point(xNode1, yNode1)), new AntiNode(new Point(xNode2, yNode2)));
         }
     }
 }
