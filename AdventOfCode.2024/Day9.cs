@@ -75,6 +75,43 @@
                     idxSystem += rawData[i];
                 }
             }
+
+            for (int i = task2List.Count - 1; i > 0; i--)
+            {
+                if (!task2List[i].Contains("."))
+                {
+                    var idxSpace = task2List.IndexOf(task2List.Where(x => x.Contains(".") && x.Count(y => y == ".") >= task2List[i].Count).FirstOrDefault()!);
+                    if (idxSpace != -1 && idxSpace < i)
+                    {
+                        var temp = task2List[idxSpace];
+                        if (task2List[idxSpace].Count(y => y == ".") >= task2List[i].Count)
+                        {
+                            var innerSpace = temp.IndexOf(".");
+                            var space = temp.GetRange(innerSpace, task2List[i].Count);
+                            temp.RemoveRange(innerSpace, task2List[i].Count);
+                            temp.InsertRange(innerSpace, task2List[i]);
+                            task2List[idxSpace] = temp;
+                            task2List[i] = space;
+                        }
+                        else
+                        {
+                            task2List[idxSpace] = task2List[i];
+                            task2List[i] = temp;
+                        }
+                    }
+                }
+            }
+
+            var parsedList = task2List.SelectMany(x => x).ToList();
+            double sum = 0;
+            for (int i = 0; i < parsedList.Count; i++)
+            {
+                if (int.TryParse(parsedList[i], out var val))
+                {
+                    sum += val * i;
+                }
+            }
+            Console.WriteLine("Sum: " + sum);
         }
     }
 }
