@@ -5,8 +5,8 @@
 
     internal class Day9 : Day
     {
-        List<int> rawData;
         List<string> fileSystem;
+        List<int> rawData;
         public Day9(string input) : base(input)
         {
             rawData = new List<int>();
@@ -16,6 +16,7 @@
             int y = 0;
             foreach (var file in line)
             {
+                rawData.Add(int.Parse(file.ToString()));
                 string fileString = file.ToString();
                 for (int i = 0; i < int.Parse(fileString); i++)
                 {
@@ -62,7 +63,18 @@
 
         public void Task2()
         {
+            var task2System = new List<string>(fileSystem);
+            List<List<string>> task2List = new List<List<string>>();
 
+            int idxSystem = 0;
+            for (int i = 0; i < rawData.Count; i++)
+            {
+                if (rawData[i] != 0)
+                {
+                    task2List.Add(task2System.GetRange(idxSystem, rawData[i]));
+                    idxSystem += rawData[i];
+                }
+            }
         }
     }
 }
