@@ -34,29 +34,35 @@
 
         public void Task1()
         {
-            for (int i = fileSystem.Count - 1; i > 0; i--)
+            var task1System = new List<string>(fileSystem);
+            for (int i = task1System.Count - 1; i > 0; i--)
             {
-                var idxSpace = fileSystem.IndexOf(".");
-                var checker = fileSystem.Skip(idxSpace);
+                var idxSpace = task1System.IndexOf(".");
+                var checker = task1System.Skip(idxSpace);
                 if (!checker.Any(s => int.TryParse(s, out _))) break;
                 
-                if (fileSystem[i] != ".")
+                if (task1System[i] != ".")
                 {
-                    fileSystem[idxSpace] = fileSystem[i];
-                    fileSystem[i] = ".";
+                    task1System[idxSpace] = task1System[i];
+                    task1System[i] = ".";
                 }
             }
 
             double sum = 0;
-            for (int i = 0; i < fileSystem.Count; i++)
+            for (int i = 0; i < task1System.Count; i++)
             {
-                if (int.TryParse(fileSystem[i], out var val))
+                if (int.TryParse(task1System[i], out var val))
                 {
                     sum += val*i;
                 }
             }
 
             Console.WriteLine("Sum: " + sum);
+        }
+
+        public void Task2()
+        {
+
         }
     }
 }
