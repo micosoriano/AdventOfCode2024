@@ -35,21 +35,49 @@
         {
             var trailHeads = trailPoints.Where(x => x.Height == 0);
 
+            int trails = 0;
             foreach (var head in trailHeads)
             {
                 var current = head;
-                var nextSteps = new List<TrailPoint>();
-                nextSteps = current.FindNext(trailPoints);
-                if (nextSteps.Count == 0) break;
+                if (MoveTrail(current, trailPoints)) trails += 1;
+            }
 
+            Console.WriteLine("Trails: " + trails);
+        }
+
+        private static bool MoveTrail(TrailPoint current, List<TrailPoint> trail)
+        {
+            bool found = false;
+            var nextSteps = current.FindNext(trail);
+            if (nextSteps.Count == 0)
+            {
+                return false;
+            }
+            else if (nextSteps.Where(x => x.Height == 9) != null)
+            {
+                found = true;
+            }
+            else if (nextSteps.Count > 1)
+            {
                 Parallel.ForEach(nextSteps, i =>
                 {
-                    while (nextSteps.Where(x => x.Height == 9) == null)
+                    if (i.Height == 9)
                     {
-
+                        found = true;
+                    }
+                    else
+                    {
+                        MoveTrail(i, trail);
                     }
                 });
             }
+            else
+            {
+                MoveTrail(nextSteps.First(), trail);
+            }
+
+
+            return found;
         }
     }
 
@@ -66,8 +94,6 @@
         public Point Position { get; }
         public int Height { get; }
 
-        Direction direction;
-
         public TrailPoint(int height, Point position)
         {
             this.Height = height;
@@ -77,10 +103,10 @@
         public List<TrailPoint> FindNext(List<TrailPoint> trailPoints)
         {
             List<TrailPoint> nextSteps = new List<TrailPoint>();
-            nextSteps.Add(FindNorth(trailPoints));
-            nextSteps.Add(FindSouth(trailPoints));
-            nextSteps.Add(FindEast(trailPoints));
-            nextSteps.Add(FindWest(trailPoints));
+            if (FindNorth(trailPoints) != null) nextSteps.Add(FindNorth(trailPoints));
+            if (FindSouth(trailPoints) != null) nextSteps.Add(FindSouth(trailPoints));
+            if (FindEast(trailPoints) != null) nextSteps.Add(FindEast(trailPoints));
+            if (FindWest(trailPoints) != null) nextSteps.Add(FindWest(trailPoints));
             return nextSteps;
         }
 
