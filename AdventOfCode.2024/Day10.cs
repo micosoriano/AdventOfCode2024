@@ -38,11 +38,17 @@
             foreach (var head in trailHeads)
             {
                 var current = head;
-                while (current.Height != 9)
+                var nextSteps = new List<TrailPoint>();
+                nextSteps = current.FindNext(trailPoints);
+                if (nextSteps.Count == 0) break;
+
+                Parallel.ForEach(nextSteps, i =>
                 {
-                    current = current.FindNext(trailPoints);
-                    if (current == null) break;
-                }
+                    while (nextSteps.Where(x => x.Height == 9) == null)
+                    {
+
+                    }
+                });
             }
         }
     }
@@ -68,59 +74,34 @@
             this.Position = position;
         }
 
-        public TrailPoint FindNext(List<TrailPoint> trailPoints)
+        public List<TrailPoint> FindNext(List<TrailPoint> trailPoints)
         {
-            var next = trailPoints.FirstOrDefault(x => x.Position == NextStep());
-            if (next != null)
-            {
-                if (next.Height == Height + 1)
-                {
-                    return next;
-                }
-            }
-
-            return null!;
+            List<TrailPoint> nextSteps = new List<TrailPoint>();
+            nextSteps.Add(FindNorth(trailPoints));
+            nextSteps.Add(FindSouth(trailPoints));
+            nextSteps.Add(FindEast(trailPoints));
+            nextSteps.Add(FindWest(trailPoints));
+            return nextSteps;
         }
 
-        public void Rotate()
+        public TrailPoint FindNorth(List<TrailPoint> trail)
         {
-            switch (direction)
-            {
-                case Direction.North:
-                    direction = Direction.East;
-                    break;
-                case Direction.East:
-                    direction = Direction.South;
-                    break;
-                case Direction.South:
-                    direction = Direction.West;
-                    break;
-                case Direction.West:
-                    direction = Direction.North;
-                    break;
-            }
+            return trail.Find(x => x.Position == new Point(this.Position.X, this.Position.Y - 1) && x.Height == this.Height + 1)!;
         }
 
-        public Point NextStep()
+        public TrailPoint FindSouth(List<TrailPoint> trail)
         {
-            Point nextStep = new Point();
-            switch (direction)
-            {
-                case Direction.North:
-                    nextStep = new Point(Position.X, Position.Y - 1);
-                    break;
-                case Direction.East:
-                    nextStep = new Point(Position.X + 1, Position.Y);
-                    break;
-                case Direction.South:
-                    nextStep = new Point(Position.X, Position.Y + 1);
-                    break;
-                case Direction.West:
-                    nextStep = new Point(Position.X - 1, Position.Y);
-                    break;
-            }
+            return trail.Find(x => x.Position == new Point(this.Position.X, this.Position.Y + 1) && x.Height == this.Height + 1)!;
+        }
 
-            return nextStep;
+        public TrailPoint FindEast(List<TrailPoint> trail)
+        {
+            return trail.Find(x => x.Position == new Point(this.Position.X + 1, this.Position.Y) && x.Height == this.Height + 1)!;
+        }
+
+        public TrailPoint FindWest(List<TrailPoint> trail)
+        {
+            return trail.Find(x => x.Position == new Point(this.Position.X - 1, this.Position.Y) && x.Height == this.Height + 1)!;
         }
     }
 }
