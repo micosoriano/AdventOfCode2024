@@ -53,7 +53,6 @@
 
         private int MoveTrail(TrailPoint current, List<TrailPoint> trail)
         {
-            Console.WriteLine($"Current Position: {current.Position}, Height: {current.Height}");
             int trailScore = 0;
             if (current.Height == 9)
             {
@@ -69,7 +68,6 @@
                 }
                 else
                 {
-                    Console.WriteLine($"Next Position: {string.Join(", ", nextSteps.Select(x => x.Position))}, Height: {nextSteps.First().Height}");
                     foreach (var next in nextSteps)
                     {
                         trailScore += MoveTrail(next, trail);
@@ -77,7 +75,6 @@
                 }
             }
 
-            Console.WriteLine("Current Trailscore: " + trailScore);
             return trailScore;
         }
     }
