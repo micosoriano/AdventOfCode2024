@@ -6,12 +6,14 @@
     internal class Day10 : Day
     {
         List<TrailPoint> trailPoints;
+        List<TrailPoint> trailPeaks;
         int yMapSize;
         int xMapSize;
 
         public Day10(string input) : base(input)
         {
             trailPoints = new List<TrailPoint>();
+            trailPeaks = new List<TrailPoint>();
             Console.WriteLine("Advent of Code Day 10");
 
             int y = 0;
@@ -39,16 +41,23 @@
             foreach (var head in trailHeads)
             {
                 var current = head;
-                trails += MoveTrail(current, trailPoints);
+                MoveTrail(current, trailPoints);
+                trails += trailPeaks.GroupBy(x => x.Position).Select(y => y.First()).Count();
+                trailPeaks.Clear();
             }
 
             Console.WriteLine("Trails: " + trails);
         }
 
-        private static int MoveTrail(TrailPoint current, List<TrailPoint> trail)
+        private int MoveTrail(TrailPoint current, List<TrailPoint> trail)
         {
+            Console.WriteLine($"Current Position: {current.Position}, Height: {current.Height}");
             int trailScore = 0;
-            if (current.Height == 9) trailScore = 1;
+            if (current.Height == 9)
+            {
+                trailPeaks.Add(current);
+                trailScore = 1;
+            }
             else
             {
                 var nextSteps = current.FindNext(trail);
@@ -58,6 +67,7 @@
                 }
                 else
                 {
+                    Console.WriteLine($"Next Position: {string.Join(", ", nextSteps.Select(x => x.Position))}, Height: {nextSteps.First().Height}");
                     foreach (var next in nextSteps)
                     {
                         trailScore += MoveTrail(next, trail);
@@ -65,6 +75,7 @@
                 }
             }
 
+            Console.WriteLine("Current Trailscore: " + trailScore);
             return trailScore;
         }
     }
