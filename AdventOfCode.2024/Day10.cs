@@ -38,15 +38,17 @@
             var trailHeads = trailPoints.Where(x => x.Height == 0);
 
             int trails = 0;
+            int distinctTrails = 0;
             foreach (var head in trailHeads)
             {
                 var current = head;
-                MoveTrail(current, trailPoints);
+                distinctTrails += MoveTrail(current, trailPoints);
                 trails += trailPeaks.GroupBy(x => x.Position).Select(y => y.First()).Count();
                 trailPeaks.Clear();
             }
 
             Console.WriteLine("Trails: " + trails);
+            Console.WriteLine("Distinct Trails: " + distinctTrails);
         }
 
         private int MoveTrail(TrailPoint current, List<TrailPoint> trail)
