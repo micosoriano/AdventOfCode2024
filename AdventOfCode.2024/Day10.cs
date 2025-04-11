@@ -7,8 +7,6 @@
     {
         List<TrailPoint> trailPoints;
         List<TrailPoint> trailPeaks;
-        int yMapSize;
-        int xMapSize;
 
         public Day10(string input) : base(input)
         {
@@ -28,63 +26,41 @@
                 }
                 y++;
             }
-
-            xMapSize = trailPoints.Max(x => x.Position.X);
-            yMapSize = trailPoints.Max(x => x.Position.Y);
         }
 
         public void Task1()
         {
             var trailHeads = trailPoints.Where(x => x.Height == 0);
 
-            int trails = 0;
+            int distinctPeaks = 0;
             int distinctTrails = 0;
             foreach (var head in trailHeads)
             {
                 var current = head;
                 distinctTrails += MoveTrail(current, trailPoints);
-                trails += trailPeaks.GroupBy(x => x.Position).Select(y => y.First()).Count();
+                distinctPeaks += trailPeaks.GroupBy(x => x.Position).Select(y => y.First()).Count();
                 trailPeaks.Clear();
             }
 
-            Console.WriteLine("Trails: " + trails);
+            Console.WriteLine("Trails: " + distinctPeaks);
             Console.WriteLine("Distinct Trails: " + distinctTrails);
         }
 
         private int MoveTrail(TrailPoint current, List<TrailPoint> trail)
         {
             int trailScore = 0;
-            if (current.Height == 9)
-            {
+            if (current.Height == 9) {
                 trailPeaks.Add(current);
                 trailScore = 1;
             }
-            else
-            {
+            else {
                 var nextSteps = current.FindNext(trail);
-                if (nextSteps.Count == 0)
-                {
-                    return 0;
-                }
-                else
-                {
-                    foreach (var next in nextSteps)
-                    {
-                        trailScore += MoveTrail(next, trail);
-                    }
-                }
+                if (nextSteps.Count == 0) return 0;
+                else foreach (var next in nextSteps) trailScore += MoveTrail(next, trail);
             }
 
             return trailScore;
         }
-    }
-
-    enum Direction
-    {
-        North,
-        East,
-        South,
-        West
     }
 
     class TrailPoint
