@@ -39,45 +39,33 @@
             foreach (var head in trailHeads)
             {
                 var current = head;
-                if (MoveTrail(current, trailPoints)) trails += 1;
+                trails += MoveTrail(current, trailPoints);
             }
 
             Console.WriteLine("Trails: " + trails);
         }
 
-        private static bool MoveTrail(TrailPoint current, List<TrailPoint> trail)
+        private static int MoveTrail(TrailPoint current, List<TrailPoint> trail)
         {
-            bool found = false;
-            var nextSteps = current.FindNext(trail);
-            if (nextSteps.Count == 0)
-            {
-                return false;
-            }
-            else if (nextSteps.Where(x => x.Height == 9) != null)
-            {
-                found = true;
-            }
-            else if (nextSteps.Count > 1)
-            {
-                Parallel.ForEach(nextSteps, i =>
-                {
-                    if (i.Height == 9)
-                    {
-                        found = true;
-                    }
-                    else
-                    {
-                        MoveTrail(i, trail);
-                    }
-                });
-            }
+            int trailScore = 0;
+            if (current.Height == 9) trailScore = 1;
             else
             {
-                MoveTrail(nextSteps.First(), trail);
+                var nextSteps = current.FindNext(trail);
+                if (nextSteps.Count == 0)
+                {
+                    return 0;
+                }
+                else
+                {
+                    foreach (var next in nextSteps)
+                    {
+                        trailScore += MoveTrail(next, trail);
+                    }
+                }
             }
 
-
-            return found;
+            return trailScore;
         }
     }
 
