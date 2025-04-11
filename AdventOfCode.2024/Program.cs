@@ -10,8 +10,8 @@ namespace AdventOfCode
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             var inputManager = new InputManager();
-			Day9 day9 = new Day9(inputManager.Day9);
-			day9.Task2();
+			Day10 day = new Day10(inputManager.Day10);
+			//day9.Task2();
 			stopwatch.Stop();
             Console.WriteLine("Time elapsed: {0}", stopwatch.Elapsed);
         }
