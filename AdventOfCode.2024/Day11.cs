@@ -72,7 +72,12 @@
                     }
                     lock (tempStones)
                     {
-                        tempStones.AddRange(Enumerable.Repeat(tempStone, val.Value).SelectMany(x => x).ToList());
+                        List<string> list = new List<string>();
+                        for (int i = 0; i < val.Value; i++)
+                        {
+                            list.AddRange(tempStone);
+                        }
+                        tempStones.AddRange(list);
                     }
                 });
                 stones = new List<string>(tempStones);
