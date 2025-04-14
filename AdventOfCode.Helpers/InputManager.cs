@@ -13,7 +13,12 @@
 		public string Day8 { get => InputPath + "/day8.txt"; }
 		public string Day9 { get => InputPath + "/day9.txt"; }
 		public string Day10 { get => InputPath + "/day10.txt"; }
-		public InputManager()
+        public string Day11 { get => InputPath + "/day11.txt"; }
+        public string Day12 { get => InputPath + "/day12.txt"; }
+        public string Day13 { get => InputPath + "/day13.txt"; }
+        public string Day14 { get => InputPath + "/day14.txt"; }
+        public string Day15 { get => InputPath + "/day15.txt"; }
+        public InputManager()
 		{
 			Console.WriteLine("Initializing Input Manager");
 
