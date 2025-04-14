@@ -1,6 +1,7 @@
 ﻿namespace AdventOfCode
 {
     using AdventOfCode.Helpers;
+    using static System.Formats.Asn1.AsnWriter;
 
     internal class Day11 : Day
     {
@@ -15,7 +16,7 @@
 
         public void Task1()
         {
-            Blink(25);
+            Blink(75);
             Console.WriteLine("Stones: " + string.Join(", ", stones));
             Console.WriteLine("Count: " + stones.Count);
         }
@@ -27,7 +28,7 @@
             while (curBlink <= blinks)
             {
                 tempStones.Clear();
-                foreach (var stone in stones)
+                Parallel.ForEach(stones, stone =>
                 {
                     List<string> tempStone = new List<string>();
 
@@ -45,11 +46,14 @@
                         var doubleVal = double.Parse(stone);
                         tempStone.Add((doubleVal * 2024).ToString());
                     }
-                    tempStones.AddRange(tempStone);
-
-                }
+                    lock (tempStones)
+                    {
+                        tempStones.AddRange(tempStone);
+                    }
+                });
                 stones = new List<string>(tempStones);
-                Console.WriteLine($"Current Stones at blink {curBlink}: " + string.Join(", ", tempStones));
+                //Console.WriteLine($"Current Stones at blink {curBlink}: " + string.Join(", ", tempStones));
+                Console.WriteLine("Current blink " + curBlink);
                 curBlink++;
             }
         }
