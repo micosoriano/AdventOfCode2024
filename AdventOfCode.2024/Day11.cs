@@ -1,5 +1,6 @@
 ﻿namespace AdventOfCode
 {
+    using System.Diagnostics;
     using AdventOfCode.Helpers;
     using static System.Formats.Asn1.AsnWriter;
 
@@ -25,25 +26,35 @@
 
         private void Blink(int blinks)
         {
+            Stopwatch stopwatch = new Stopwatch();
             int curBlink = 1;
             List<string> tempStones = new List<string>();
             while (curBlink <= blinks)
             {
+                stopwatch.Start();
                 tempStones.Clear();
-                foreach (var stone in stones)
+                var dict = stones.GroupBy(x => x).ToList().ToDictionary(y => y.Key, y => y.Count());
+                Parallel.ForEach(dict, val =>
                 {
                     List<string> tempStone = new List<string>();
-
-                    if (knownStones.ContainsKey(stone))
+                    bool isKnown = false;
+                    lock (knownStones)
                     {
-                        tempStone = knownStones[stone];
+                        if (knownStones.ContainsKey(val.Key))
+                        {
+                            isKnown = true;
+                        }
+                    }
+                    if (isKnown)
+                    {
+                        tempStone = knownStones[val.Key];
                     }
                     else
                     {
-                        if (stone == "0") tempStone.Add("1");
-                        else if (stone.Length % 2 == 0)
+                        if (val.Key == "0") tempStone.Add("1");
+                        else if (val.Key.Length % 2 == 0)
                         {
-                            var list = stone.ToCharArray().ToList();
+                            var list = val.Key.ToCharArray().ToList();
                             var firstHalf = list.Take(list.Count / 2).ToList();
                             var secondHalf = list.Skip(list.Count / 2).ToList();
                             tempStone.Add(new string(firstHalf.ToArray()));
@@ -51,18 +62,24 @@
                         }
                         else
                         {
-                            var doubleVal = double.Parse(stone);
+                            var doubleVal = double.Parse(val.Key);
                             tempStone.Add((doubleVal * 2024).ToString());
                         }
-                        knownStones.Add(stone, tempStone);
-
+                        lock (knownStones)
+                        {
+                            knownStones.TryAdd(val.Key, tempStone);
+                        }
                     }
-                    tempStones.AddRange(tempStone);
-
-                }
+                    lock (tempStones)
+                    {
+                        tempStones.AddRange(Enumerable.Repeat(tempStone, val.Value).SelectMany(x => x).ToList());
+                    }
+                });
                 stones = new List<string>(tempStones);
+                stopwatch.Stop();
                 //Console.WriteLine($"Current Stones at blink {curBlink}: " + string.Join(", ", tempStones));
                 Console.WriteLine("Current blink " + curBlink);
+                Console.WriteLine("Time elapsed for blink: {0}", stopwatch.Elapsed);
                 curBlink++;
             }
         }
