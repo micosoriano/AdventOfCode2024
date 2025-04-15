@@ -5,34 +5,38 @@
 
     internal class Day11 : Day
     {
-        List<double> stones;
+        Dictionary<double, double> currentStones;
         Dictionary<double, List<double>> knownStones;
         public Day11(string input) : base(input)
         {
             Console.WriteLine("Advent of Code Day 11");
-            stones = new List<double>();
+            currentStones = new Dictionary<double, double>();
             knownStones = new Dictionary<double, List<double>>();
-            stones.AddRange(Array.ConvertAll(reader.ReadLine()!.Split(" "), double.Parse));
-
+            var line = Array.ConvertAll(reader.ReadLine()!.Split(" "), double.Parse);
+            currentStones = line.GroupBy(x => x).ToList().ToDictionary(y => y.Key, y => (double)y.Count());
         }
 
         public void Task1()
         {
             Blink(75);
-            //Console.WriteLine("Stones: " + string.Join(", ", stones));
-            Console.WriteLine("Count: " + stones.Count);
+            double count = 0;
+            foreach (var stone in currentStones)
+            {
+                count += stone.Value;
+            }
+            Console.WriteLine(count);
         }
 
         private void Blink(int blinks)
         {
             Stopwatch stopwatch = new Stopwatch();
             int curBlink = 1;
-            List<double> tempStones = new List<double>();
+            Dictionary<double, double> tempStones = new Dictionary<double, double>();
             while (curBlink <= blinks)
             {
                 stopwatch.Start();
                 tempStones.Clear();
-                var dict = stones.GroupBy(x => x).ToList().ToDictionary(y => y.Key, y => y.Count());
+                var dict = currentStones;
                 Parallel.ForEach(dict, val =>
                 {
                     List<double> tempStone = new List<double>();
@@ -72,19 +76,17 @@
                     }
                     lock (tempStones)
                     {
-                        List<double> list = new List<double>();
-                        for (int i = 0; i < val.Value; i++)
+                        foreach (var stone in tempStone)
                         {
-                            list.AddRange(tempStone);
+                            if (!tempStones.TryAdd(stone, val.Value))
+                            {
+                                tempStones[stone] += val.Value;
+                            }
                         }
-                        tempStones.AddRange(list);
                     }
                 });
-                stones = new List<double>(tempStones);
+                currentStones = new Dictionary<double, double>(tempStones);
                 stopwatch.Stop();
-                //Console.WriteLine($"Current Stones at blink {curBlink}: " + string.Join(", ", tempStones));
-                Console.WriteLine("Current blink " + curBlink);
-                Console.WriteLine("Time elapsed for blink: {0}", stopwatch.Elapsed);
                 curBlink++;
             }
         }
