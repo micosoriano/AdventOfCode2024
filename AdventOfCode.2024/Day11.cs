@@ -18,75 +18,58 @@
 
         public void Task1()
         {
-            Blink(75);
+            GetStoneCount(25);
+        }
+
+        public void Task2()
+        {
+            GetStoneCount(75);     
+        }
+
+        private void GetStoneCount(int blinks)
+        {
+            Blink(blinks);
             double count = 0;
-            foreach (var stone in currentStones)
-            {
-                count += stone.Value;
-            }
+            foreach (var stone in currentStones) count += stone.Value;
             Console.WriteLine(count);
         }
 
         private void Blink(int blinks)
         {
-            Stopwatch stopwatch = new Stopwatch();
             int curBlink = 1;
             Dictionary<double, double> tempStones = new Dictionary<double, double>();
-            while (curBlink <= blinks)
-            {
-                stopwatch.Start();
+            while (curBlink <= blinks) {
                 tempStones.Clear();
-                var dict = currentStones;
-                Parallel.ForEach(dict, val =>
-                {
+                Parallel.ForEach(currentStones, val => {
                     List<double> tempStone = new List<double>();
                     bool isKnown = false;
-                    lock (knownStones)
-                    {
-                        if (knownStones.ContainsKey(val.Key))
-                        {
-                            isKnown = true;
-                        }
+                    lock (knownStones) {
+                        if (knownStones.ContainsKey(val.Key)) isKnown = true;
                     }
-                    if (isKnown)
-                    {
-                        tempStone = knownStones[val.Key];
-                    }
-                    else
-                    {
+                    if (isKnown) tempStone = knownStones[val.Key];
+                    else {
                         var valStr = val.Key.ToString();
                         if (valStr == "0") tempStone.Add(1);
-                        else if (valStr.Length % 2 == 0)
-                        {
+                        else if (valStr.Length % 2 == 0) {
                             var list = valStr.ToCharArray().ToList();
                             var firstHalf = list.Take(list.Count / 2).ToList();
                             var secondHalf = list.Skip(list.Count / 2).ToList();
                             tempStone.Add(double.Parse(firstHalf.ToArray()));
                             tempStone.Add(double.Parse(secondHalf.ToArray()));
                         }
-                        else
-                        {
+                        else {
                             var doubleVal = double.Parse(valStr);
                             tempStone.Add((doubleVal * 2024));
                         }
-                        lock (knownStones)
-                        {
-                            knownStones.TryAdd(val.Key, tempStone);
-                        }
+                        lock (knownStones) knownStones.TryAdd(val.Key, tempStone);
                     }
-                    lock (tempStones)
-                    {
-                        foreach (var stone in tempStone)
-                        {
-                            if (!tempStones.TryAdd(stone, val.Value))
-                            {
-                                tempStones[stone] += val.Value;
-                            }
+                    lock (tempStones) {
+                        foreach (var stone in tempStone) {
+                            if (!tempStones.TryAdd(stone, val.Value)) tempStones[stone] += val.Value;
                         }
                     }
                 });
                 currentStones = new Dictionary<double, double>(tempStones);
-                stopwatch.Stop();
                 curBlink++;
             }
         }
