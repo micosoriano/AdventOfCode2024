@@ -33,6 +33,10 @@
     {
         public Point Position { get; }
         public char Value { get; }
+        public Plant? North { get; private set; }
+        public Plant? South { get; private set; }
+        public Plant? East { get; private set; }
+        public Plant? West { get; private set; }
         public Plant(char value, Point position)
         {
             this.Value = value;
@@ -43,32 +47,65 @@
         {
             int perimeter = 4;
 
-            if (FindNorth(garden)) perimeter--;
-            if (FindSouth(garden)) perimeter--;
-            if (FindEast(garden)) perimeter--;
-            if (FindWest(garden)) perimeter--;
+            if (North != null) perimeter--;
+            if (South != null) perimeter--;
+            if (East != null) perimeter--;
+            if (West != null) perimeter--;
 
             return perimeter;
         }
 
-        public bool FindNorth(List<Plant> garden)
+        public List<Plant> FindNext(List<Plant> garden)
         {
-            return garden.Find(x => x.Position == new Point(this.Position.X, this.Position.Y - 1) && x.Value == this.Value)! != null;
+            List<Plant> nextSteps = new List<Plant>();
+            if (TryFindNorth(garden, out var north))
+            {
+                nextSteps.Add(north);
+                this.North = north;
+            }
+
+            if (TryFindSouth(garden, out var south))
+            {
+                nextSteps.Add(south);
+                this.South = south;
+            }
+
+            if (TryFindEast(garden, out var east))
+            {
+                nextSteps.Add(east);
+                this.East = east;
+            }
+
+            if (TryFindWest(garden, out var west))
+            {
+                nextSteps.Add(west);
+                this.West = west;
+            }
+            return nextSteps;
         }
 
-        public bool FindSouth(List<Plant> garden)
+        public bool TryFindNorth(List<Plant> garden, out Plant plant)
         {
-            return garden.Find(x => x.Position == new Point(this.Position.X, this.Position.Y + 1) && x.Value == this.Value)! != null;
+            plant = garden.Find(x => x.Position == new Point(this.Position.X, this.Position.Y - 1) && x.Value == this.Value)!;
+            return plant != null;
         }
 
-        public bool FindEast(List<Plant> garden)
+        public bool TryFindSouth(List<Plant> garden, out Plant plant)
         {
-            return garden.Find(x => x.Position == new Point(this.Position.X + 1, this.Position.Y) && x.Value == this.Value)! != null;
+            plant = garden.Find(x => x.Position == new Point(this.Position.X, this.Position.Y + 1) && x.Value == this.Value)!;
+            return plant != null;
         }
 
-        public bool FindWest(List<Plant> garden)
+        public bool TryFindEast(List<Plant> garden, out Plant plant)
         {
-            return garden.Find(x => x.Position == new Point(this.Position.X - 1, this.Position.Y) && x.Value == this.Value)! != null;
+            plant = garden.Find(x => x.Position == new Point(this.Position.X + 1, this.Position.Y) && x.Value == this.Value)!;
+            return plant != null;
+        }
+
+        public bool TryFindWest(List<Plant> garden, out Plant plant)
+        {
+            plant = garden.Find(x => x.Position == new Point(this.Position.X - 1, this.Position.Y) && x.Value == this.Value)!;
+            return plant != null;
         }
     }
 }
