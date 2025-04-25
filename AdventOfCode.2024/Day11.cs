@@ -1,6 +1,5 @@
 ﻿namespace AdventOfCode
 {
-    using System.Diagnostics;
     using AdventOfCode.Helpers;
 
     internal class Day11 : Day
