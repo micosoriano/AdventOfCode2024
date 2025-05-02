@@ -1,16 +1,17 @@
 ﻿namespace AdventOfCode
 {
     using System.Drawing;
+    using System.Security;
     using AdventOfCode.Helpers;
 
     internal class Day12 : Day
     {
         List<Plant> garden;
-        List<Plant> localRegion;
+        List<Plant> tempGarden;
         public Day12(string input) : base(input)
         {
             garden = new List<Plant>();
-            localRegion = new List<Plant>();
+            tempGarden = new List<Plant>();
             Console.WriteLine("Advent of Code Day 12");
             int y = 0;
             while (!reader.EndOfStream)
@@ -27,38 +28,53 @@
 
         public void Task1()
         {
-            List<List <Plant>> regions = new List<List<Plant>>();
             foreach (var plant in garden)
             {
                 plant.TryFindNext(garden, out var adjacent);
             }
 
-            foreach (var plant in garden)
+            tempGarden = new List<Plant>(garden);
+            var groupedGarden = new List<List<Plant>>();
+
+            for (;tempGarden.Count > 0;)
             {
-                localRegion.Clear();
-                GetRegion(plant);
-                regions.Add(localRegion);
+                var current = tempGarden[0];
+                tempGarden.Remove(current);
+                groupedGarden.Add(GetRegion(current));
             }
+
+            int price = 0;
+            foreach (var group in groupedGarden)
+            {
+                int area = 0;
+                int perimeter = 0;
+                area += group.Count;
+                foreach (var plant in group)
+                {
+                    perimeter += plant.GetPerimeter();
+                }
+                price += area * perimeter;
+            }
+
+
+            Console.WriteLine(price);
         }
 
         public List<Plant> GetRegion(Plant plant)
         {
             List<Plant> region = new List<Plant>();
-            if (plant.Adjacent.Count > 0)
+            region.Add(plant);
+            if (plant.Adjacent.Count == 0) return region;
+            else
             {
                 foreach (var adj in plant.Adjacent)
                 {
-                    if (localRegion.Contains(adj)) continue;
-                    localRegion.Add(adj);
-                    var locRegion = GetRegion(adj);
-                    localRegion.AddRange(locRegion);
-                    region = localRegion;
+                    if (tempGarden.Contains(adj))
+                    {
+                        tempGarden.Remove(adj);
+                        region.AddRange(GetRegion(adj));
+                    }
                 }
-            }
-            else
-            {
-                localRegion.Add(plant);
-                region.Add(plant);
             }
 
             return region;
@@ -82,7 +98,7 @@
             this.Position = position;
         }
 
-        public int GetPerimeter(List<Plant> garden)
+        public int GetPerimeter()
         {
             int perimeter = 4;
 
