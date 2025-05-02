@@ -8,10 +8,12 @@
     {
         List<Plant> garden;
         List<Plant> tempGarden;
+        List<List<Plant>> groupedGarden;
         public Day12(string input) : base(input)
         {
             garden = new List<Plant>();
             tempGarden = new List<Plant>();
+            groupedGarden = new List<List<Plant>>();
             Console.WriteLine("Advent of Code Day 12");
             int y = 0;
             while (!reader.EndOfStream)
@@ -24,24 +26,24 @@
                 }
                 y++;
             }
-        }
 
-        public void Task1()
-        {
             foreach (var plant in garden)
             {
                 plant.TryFindNext(garden, out var adjacent);
             }
 
             tempGarden = new List<Plant>(garden);
-            var groupedGarden = new List<List<Plant>>();
 
-            for (;tempGarden.Count > 0;)
+            for (; tempGarden.Count > 0;)
             {
                 var current = tempGarden[0];
                 tempGarden.Remove(current);
                 groupedGarden.Add(GetRegion(current));
             }
+        }
+
+        public void Task1()
+        {
 
             int price = 0;
             foreach (var group in groupedGarden)
@@ -55,9 +57,12 @@
                 }
                 price += area * perimeter;
             }
-
-
             Console.WriteLine(price);
+        }
+
+        public void Task2()
+        {
+
         }
 
         public List<Plant> GetRegion(Plant plant)
