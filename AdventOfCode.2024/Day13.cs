@@ -43,7 +43,7 @@
 
         public void Task1()
         {
-            int tokenCount = 0;
+            double tokenCount = 0;
             foreach (var machine in machines)
             {
                 tokenCount += machine.GetTokenCount();
@@ -73,23 +73,23 @@
             
         }
 
-        public int GetTokenCount()
+        public double GetTokenCount()
         {
-            int btnAPress = ((Prize.Value.X * ButtonB.YIncrement) - (Prize.Value.Y * ButtonB.XIncrement)) / ((ButtonA.XIncrement * ButtonB.YIncrement) - (ButtonA.YIncrement * ButtonB.XIncrement));
-            int btnBPress = (Prize.Value.Y - (btnAPress * ButtonA.YIncrement)) / (ButtonB.YIncrement);
+            double btnAPress = ((Prize.Value.X * ButtonB.YIncrement) - (Prize.Value.Y * ButtonB.XIncrement)) / ((ButtonA.XIncrement * ButtonB.YIncrement) - (ButtonA.YIncrement * ButtonB.XIncrement));
+            double btnBPress = (Prize.Value.Y - (btnAPress * ButtonA.YIncrement)) / (ButtonB.YIncrement);
 
             Console.WriteLine($"");
             Console.WriteLine($"ButtonA: {btnAPress}");
             Console.WriteLine($"ButtonB: {btnBPress}");
-            int tokenCount = 0;
+            double tokenCount = 0;
 
-            if (btnAPress > 100 || btnBPress > 100 || btnAPress < 0 || btnBPress < 0)
+            if (btnAPress > 100 || btnBPress > 100 || btnAPress < 0 || btnBPress < 0 || btnAPress % 1 != 0 || btnBPress % 1 != 0)
             {
                 tokenCount = 0;
             }
             else
             {
-                tokenCount = btnAPress * ButtonA.TokenPrice + btnBPress * ButtonB.TokenPrice;
+                tokenCount = (btnAPress * ButtonA.TokenPrice) + (btnBPress * ButtonB.TokenPrice);
             }
 
             Console.WriteLine($"TokenCount: {tokenCount}");
