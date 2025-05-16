@@ -20,15 +20,12 @@
                 do
                 {
                     line = reader.ReadLine()!;
-                    if (line.Contains("6869"))
-                    {
-                        int x = 0;
-                    }
-                    if (line.Contains("A"))
+                    if (line == null) break;
+                    if (line.Contains('A'))
                     {
                         machine.ButtonA = new Button(line);
                     }
-                    else if (line.Contains("B"))
+                    else if (line.Contains('B'))
                     {
                         machine.ButtonB = new Button(line);
                     }
@@ -39,9 +36,6 @@
                     }
                 }
                 while (line != "");
-                {
-
-                }
                 machines.Add(machine);
             }
             while (!reader.EndOfStream);
