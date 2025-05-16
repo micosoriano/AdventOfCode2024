@@ -23,11 +23,11 @@
                     if (line == null) break;
                     if (line.Contains('A'))
                     {
-                        machine.ButtonA = new Button(line);
+                        machine.ButtonA = new Button(line, 3);
                     }
                     else if (line.Contains('B'))
                     {
-                        machine.ButtonB = new Button(line);
+                        machine.ButtonB = new Button(line, 1);
                     }
                     else if (line.Contains("Prize"))
                     {
@@ -39,6 +39,12 @@
                 machines.Add(machine);
             }
             while (!reader.EndOfStream);
+        }
+
+        public void Task1()
+        {
+            var tokenCount = machines.Select(x => x.GetTokenCount()).Sum();
+            Console.WriteLine(tokenCount);
         }
     }
 
@@ -61,18 +67,33 @@
         {
             
         }
+
+        public int GetTokenCount()
+        {
+            int btnAPress = ((Prize.Value.X * ButtonB.YIncrement) - (Prize.Value.Y * ButtonB.XIncrement)) / ((ButtonA.XIncrement * ButtonB.YIncrement) - (ButtonA.YIncrement * ButtonB.XIncrement));
+            int btnBPress = (Prize.Value.Y - (btnAPress * ButtonA.YIncrement)) / (ButtonB.YIncrement);
+
+            if (btnAPress > 100 || btnBPress > 100 || btnAPress < 0 || btnBPress < 0)
+            {
+                return 0;
+            }
+
+            return btnAPress*ButtonA.TokenPrice + btnBPress*ButtonB.TokenPrice;
+        }
     }
 
     class Button
     {
         public int YIncrement { get; }
         public int XIncrement { get; }
+        public int TokenPrice { get; }
 
-        public Button(string settings)
+        public Button(string settings, int tokenPrice)
         {
             var input =  Parser.ParseInput(settings);
-            XIncrement = input[0];
-            YIncrement = input[1];
+            this.XIncrement = input[0];
+            this.YIncrement = input[1];
+            this.TokenPrice = tokenPrice;
         }
     }
 }
