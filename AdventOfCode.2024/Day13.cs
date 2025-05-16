@@ -1,6 +1,7 @@
 ﻿namespace AdventOfCode
 {
     using System.Drawing;
+    using System.Numerics;
     using System.Runtime.CompilerServices;
     using System.Text.RegularExpressions;
     using AdventOfCode.Helpers;
@@ -32,7 +33,8 @@
                     else if (line.Contains("Prize"))
                     {
                         var coor = Parser.ParseInput(line);
-                        machine.Prize = new Point(coor[0], coor[1]);
+                        //machine.Prize = new Prize(coor[0] + 10000000000000, coor[1] + 10000000000000);
+                        machine.Prize = new Prize(coor[0], coor[1]);
                     }
                 }
                 while (line != "");
@@ -43,7 +45,7 @@
 
         public void Task1()
         {
-            double tokenCount = 0;
+            long tokenCount = 0;
             foreach (var machine in machines)
             {
                 tokenCount += machine.GetTokenCount();
@@ -55,10 +57,21 @@
 
     static class Parser
     {
-        public static List<int> ParseInput(string input)
+        public static List<long> ParseInput(string input)
         {
             string digitPattern = @"\d+";
-            return Regex.Matches(input, digitPattern).Select(x => int.Parse(x.Value)).ToList();
+            return Regex.Matches(input, digitPattern).Select(x => long.Parse(x.Value)).ToList();
+        }
+    }
+
+    class Prize
+    {
+        public long X { get; }
+        public long Y { get; }
+        public Prize(long x, long y)
+        {
+            this.X = x;
+            this.Y = y;
         }
     }
 
@@ -66,22 +79,22 @@
     {
         public Button? ButtonA { get; set; }
         public Button? ButtonB { get; set; }
-        public Point? Prize { get; set; }
+        public Prize? Prize { get; set; }
 
         public ClawMachine()
         {
             
         }
 
-        public double GetTokenCount()
+        public long GetTokenCount()
         {
-            double btnAPress = ((Prize.Value.X * ButtonB.YIncrement) - (Prize.Value.Y * ButtonB.XIncrement)) / ((ButtonA.XIncrement * ButtonB.YIncrement) - (ButtonA.YIncrement * ButtonB.XIncrement));
-            double btnBPress = (Prize.Value.Y - (btnAPress * ButtonA.YIncrement)) / (ButtonB.YIncrement);
+            double btnAPress = ((Prize.X * ButtonB.YIncrement) - (Prize.Y * ButtonB.XIncrement)) / ((ButtonA.XIncrement * ButtonB.YIncrement) - (ButtonA.YIncrement * ButtonB.XIncrement));
+            double btnBPress = (Prize.Y - (btnAPress * ButtonA.YIncrement)) / (ButtonB.YIncrement);
 
             Console.WriteLine($"");
             Console.WriteLine($"ButtonA: {btnAPress}");
             Console.WriteLine($"ButtonB: {btnBPress}");
-            double tokenCount = 0;
+            long tokenCount = 0;
 
             if (btnAPress > 100 || btnBPress > 100 || btnAPress < 0 || btnBPress < 0 || btnAPress % 1 != 0 || btnBPress % 1 != 0)
             {
@@ -89,7 +102,7 @@
             }
             else
             {
-                tokenCount = (btnAPress * ButtonA.TokenPrice) + (btnBPress * ButtonB.TokenPrice);
+                tokenCount = ((long)btnAPress * ButtonA.TokenPrice) + ((long)btnBPress * ButtonB.TokenPrice);
             }
 
             Console.WriteLine($"TokenCount: {tokenCount}");
@@ -99,8 +112,8 @@
 
     class Button
     {
-        public int YIncrement { get; }
-        public int XIncrement { get; }
+        public long YIncrement { get; }
+        public long XIncrement { get; }
         public int TokenPrice { get; }
 
         public Button(string settings, int tokenPrice)
